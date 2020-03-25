@@ -7,11 +7,10 @@ let x = 0;
 let y = 0;
 let curStroke;
 
-
-function copyStroke(oldStroke){
+function copyStroke(oldStroke) {
   let newStroke = new Stroke();
 
-  for(let i=0; i < oldStroke.x.length; i++){
+  for(let i = 0; i < oldStroke.x.length; i++) {
     newStroke.x.push(oldStroke.x[i]);
     newStroke.y.push(oldStroke.y[i]);
     newStroke.timeStamps.push(oldStroke.timeStamps[i])
@@ -19,8 +18,9 @@ function copyStroke(oldStroke){
 
 }
 
-class Stroke{
-  constructor(){
+
+class Stroke {
+  constructor() {
     this.x = [];
     this.y = [];
     this.timeStamps = [];
@@ -58,6 +58,7 @@ drawCanvas.addEventListener('mousedown', e => {
     
   }
 });
+
 
 drawCanvas.addEventListener('mousemove', e => {
   /*TODO: Out of bounds mouse movements should stop current stroke*/
