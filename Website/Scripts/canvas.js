@@ -42,7 +42,7 @@ function drawingDuration(AllStrokes) {
   return AllStrokes.reduce((total, curr) => total + curr);
 }
 
-
+const buttonClear = document.getElementById('buttonClear');
 const drawCanvas = document.getElementById('drawCanvas');
 const context = drawCanvas.getContext('2d');
 
@@ -52,16 +52,15 @@ const rect = drawCanvas.getBoundingClientRect();
 // Add the event listeners for mousedown, mousemove, and mouseup
 drawCanvas.addEventListener('mousedown', e => {
   
-  // Hvorfor e.button?
   if (e.button === 0) {  
     x = e.clientX - rect.left;
     y = e.clientY - rect.top;
     timerStart = Date.now();
-    let timeStamp = Date.now() - timerStart;
     isDrawing = true;
+    
     // Er det doable?
     // Test
-    let stroke = new Stroke(x, y, timeStamp);
+    let stroke = new Stroke(x, y, Date.now() - timerStart);
     AllStrokes.push(stroke);
   }
 });
@@ -70,23 +69,19 @@ drawCanvas.addEventListener('mousedown', e => {
 drawCanvas.addEventListener('mousemove', e => {
   /*TODO: Out of bounds mouse movements should stop current stroke*/
 
-  // Hvorfor e.button?
   if (isDrawing === true && e.button === 0) {
     drawLine(context, x, y, e.clientX - rect.left, e.clientY - rect.top);
     x = e.clientX - rect.left;
     y = e.clientY - rect.top;
-    timeStamp = Date.now() - timerStart;
+  
     // TODO: feature extract x, y, and time for stroke
     // Test
-    AllStrokes[AllStrokes.length].push(x, y, timeStamp);
+    AllStrokes[AllStrokes.length].push(x, y, Date.now() - timerStart);
   }
 });
 
 
 window.addEventListener('mouseup', e => {
-  /*TODO: The latest stroke should be pushed to the stroke array*/
-
-  // Hvorfor e.button?
   if (isDrawing === true && e.button === 0) {
     drawLine(context, x, y, e.clientX - rect.left, e.clientY - rect.top);
     x = 0;
@@ -105,3 +100,9 @@ function drawLine(context, x1, y1, x2, y2) {
   context.stroke();
   context.closePath();
 }
+
+/* Add event listener for clear button. Remember to clear AllStrokes array. */
+buttonClear.addEventListener('onclick', e =>  {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  AllStrokes.length = 0;
+});
