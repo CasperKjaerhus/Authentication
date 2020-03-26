@@ -41,7 +41,7 @@ exports.Server = class {
           break;
       }
       res.writeHead(404);
-      //res.write(fs.readFileSync(404_PAGE_FILE_LOCATION));  TODO: 404 side in case 
+      //res.write(fs.readFileSync(404_PAGE_FILE_LOCATION));  TODO: 404 webpage in case 
       res.end();
     }).listen(this.port);
     console.log("Session started!");
