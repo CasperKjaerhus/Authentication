@@ -4,6 +4,11 @@ const fs = require("fs");
 
 const server = new Server(8000);
 
+function serve(req, res, resource){
+    res.writeHead(200);
+    res.write(fs.readFileSync(resource.fileLocation));
+}
+
 server.addResource(new ServerResource("GET", "./index.html", "/", (req, res, resource) => {
     /* Telling the server that there exist a resource such as (a get request, with FileLocation "./index.html"), with URL "/") Below is what the server should respond,
     * when recieving the GET request.*/ 
@@ -12,5 +17,8 @@ server.addResource(new ServerResource("GET", "./index.html", "/", (req, res, res
     res.write(fs.readFileSync(resource.fileLocation));
 
 }));
+
+server.addResource(new Server("GET", "./Scripts/canvas.js", "/Scripts/canvas.js", serve));
+server.addResource(new Server("GET", "./Style/canvas.js", "/Style/index.css", serve));
 
 server.start();
