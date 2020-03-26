@@ -18,21 +18,13 @@ exports.Server = class {
 
       switch (req.method) {
         case "GET":
-          /* The resources are filtered so that only the valid resources are being used */
-          /*const getResources = this.resources.filter((value) => {
-            if (value.method === "GET") {
-              return true;
-            }
-            else { //Hvis slettes måske tilføj ovenstående kommentar nedenfor. PS jeg pisser lige
-              return false;
-            }
-          });*/
-          /* With the list of valid resources, the url's of the different resources are compared to the requested url, so the correct resource will be used */
+          /* The resources are filtered so that only the valid resources are being used
+             With the list of resources, the url's of the different resources are compared to the requested url, so the correct resource will be used */
           for (let resource of this.resources) {
             if (req.url === resource.url && req.method === resource.method) {
               console.log(`FOUND RESOURCE MATCH: ${resource}`);
               
-              /**/
+              /*The resources callback is then used to figure out the appropriate response*/
               resource.callback(req, res, resource);
 
               res.end();
