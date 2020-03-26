@@ -1,5 +1,7 @@
 const http = require("http");
 const fs = require("fs");
+
+/* This class sets "port" to a default value of 8000 and creates an empty array "resources", that will be used to contain/hold all the server resources */
 exports.Server = class {
   constructor (port=8000) {
     this.port = port;
@@ -16,21 +18,23 @@ exports.Server = class {
 
       switch (req.method) {
         case "GET":
-
-          const getResources = this.resources.filter((value) => {
+          /* The resources are filtered so that only the valid resources are being used */
+          /*const getResources = this.resources.filter((value) => {
             if (value.method === "GET") {
               return true;
             }
-            else {
+            else { //Hvis slettes måske tilføj ovenstående kommentar nedenfor. PS jeg pisser lige
               return false;
             }
-          });
-
-          for (let resource of getResources) {
-            if (req.url === resource.url) {
+          });*/
+          /* With the list of valid resources, the url's of the different resources are compared to the requested url, so the correct resource will be used */
+          for (let resource of this.resources) {
+            if (req.url === resource.url && req.method === resource.method) {
               console.log(`FOUND RESOURCE MATCH: ${resource}`);
-              res.writeHead(200);
-              res.write(fs.readFileSync(resource.fileLocation));
+              
+              /**/
+              resource.callback(req, res, resource);
+
               res.end();
               return;
             }
