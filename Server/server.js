@@ -1,15 +1,8 @@
 const http = require("http");
 const fs = require("fs");
 
-class ServerResource {
-  constructor (method, fileLocation, url, callback) {
-    this.method = method;
-    this.fileLocation = fileLocation;
-    this.url = url;
-    this.callback = callback;
-  }     
-}
-class Server {
+/* This class sets "port" to a default value of 8000 and creates an empty array "resources", that will be used to contain/hold all the server resources */
+exports.Server = class {
   constructor (port=8000) {
     this.port = port;
     this.resources = [];
@@ -25,25 +18,19 @@ class Server {
 
       switch (req.method) {
         case "GET":
-
-          const getResources = this.resources.filter((value) => {
-            if (value.method === "GET") {
-              return true;
-            }
-            else {
-              return false;
-            }
-          });
-          for (let resource of getResources) {
-            if (req.url === resource.url) {
+          /* The resources are filtered so that only the valid resources are being used
+             With the list of resources, the url's of the different resources are compared to the requested url, so the correct resource will be used */
+          for (let resource of this.resources) {
+            if (req.url === resource.url && req.method === resource.method) {
               console.log(`FOUND RESOURCE MATCH: ${resource}`);
-              res.writeHead(200);
-              res.write(fs.readFileSync(resource.fileLocation));
+              
+              /*The resources callback is then used to figure out the appropriate response*/
+              resource.callback(req, res, resource);
+
               res.end();
+              return;
             }
           }
-
-
           break;
 
         case "PUT":
@@ -51,18 +38,12 @@ class Server {
           break;
 
         default:  
-          res.writeHead(404);
           break;
       }
+      res.writeHead(404);
+      //res.write(fs.readFileSync(404_PAGE_FILE_LOCATION));  TODO: 404 webpage in case 
+      res.end();
     }).listen(this.port);
     console.log("Session started!");
   }
-
 }
-
-
-const server = new Server(8000);
-server.addResource(new ServerResource("GET", "../Website/index.html", "/", () => {}));
-server.addResource(new ServerResource("GET", "../Website/Scripts/canvas.js", "/Scripts/canvas.js", () => {}));
-server.addResource(new ServerResource("GET", "../Website/Style/index.css", "/style/index.css", () => {}));
-server.start();
