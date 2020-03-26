@@ -18,7 +18,7 @@ server.addResource(new ServerResource("GET", "../Website/index.html", "/", (req,
 
 }));
 
-server.addResource(new Server("GET", "../Website/Scripts/canvas.js", "/Scripts/canvas.js", serve));
-server.addResource(new Server("GET", "../Website/Style/index.css", "/Style/index.css", serve));
+server.addResource(new ServerResource("GET", "../Website/Scripts/canvas.js", "/Scripts/canvas.js", serve));
+server.addResource(new ServerResource("GET", "../Website/Style/index.css", "/Style/index.css", serve));
 
 server.start();
