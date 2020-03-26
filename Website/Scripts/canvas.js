@@ -108,7 +108,7 @@ buttonClear.addEventListener('click', e =>  {
 
 buttonSubmit.addEventListener('click', e =>  {
   const url = "/submit";
-  const data = json.stringify(AllStrokes);
+  const data = JSON.stringify(AllStrokes);
 
   const parameters = { 
     
