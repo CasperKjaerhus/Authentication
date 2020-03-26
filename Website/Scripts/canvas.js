@@ -27,17 +27,6 @@ class Stroke {
   // TODO: Gradient method 
 }
 
-// Slet måske??
-function copyStroke(oldStroke) {
-  let newStroke = new Stroke();
-
-  for (let i = 0; i < oldStroke.x.length; i++) {
-    newStroke.x.push(oldStroke.x[i]);
-    newStroke.y.push(oldStroke.y[i]);
-    newStroke.timeStamps.push(oldStroke.timeStamps[i])
-  }
-}
-
 
 function drawingDuration(AllStrokes) {
   return AllStrokes.reduce((total, curr) => total + curr);
@@ -61,8 +50,7 @@ drawCanvas.addEventListener('mousedown', e => {
     
     // Er det doable?
     // Test
-    let stroke = new Stroke(x, y, Date.now() - timerStart);
-    AllStrokes.push(stroke);
+    AllStrokes.push(new Stroke(x, y, Date.now() - timerStart));
   }
 });
 
@@ -77,7 +65,7 @@ drawCanvas.addEventListener('mousemove', e => {
   
     // TODO: feature extract x, y, and time for stroke
     // Test
-    AllStrokes[AllStrokes.length].push(x, y, Date.now() - timerStart);
+    AllStrokes[AllStrokes.length-1].push(x, y, Date.now() - timerStart);
   }
 });
 
@@ -88,6 +76,14 @@ window.addEventListener('mouseup', e => {
     x = 0;
     y = 0;
     isDrawing = false;
+    
+    /* Log test for features
+    for (let i = 0; i < AllStrokes[0].x.length; i++) {
+      console.log(`x = ${AllStrokes[0].x[i]}\n`)
+      console.log(`y = ${AllStrokes[0].y[i]}\n`)
+      console.log(`timeStamps = ${AllStrokes[0].timeStamps[i]}\n`)
+    }
+    */
   }
 });
 
@@ -107,7 +103,3 @@ buttonClear.addEventListener('click', e =>  {
   context.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
   AllStrokes.length = 0;
 });
-
-console.log(`x = ${AllStrokes[0].x}\n`)
-console.log(`y = ${AllStrokes[0].y}\n`)
-console.log(`timeStamps = ${AllStrokes[0].timeStamps}\n`)
