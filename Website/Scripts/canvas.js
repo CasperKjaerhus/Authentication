@@ -5,6 +5,7 @@ let isDrawing = false;
 let x = 0;
 let y = 0;
 let timerStart = 0;
+let AllStrokes = [];
 
 class Stroke {
   constructor() {
@@ -106,3 +107,7 @@ buttonClear.addEventListener('click', e =>  {
   context.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
   AllStrokes.length = 0;
 });
+
+console.log(`x = ${AllStrokes[0].x}\n`)
+console.log(`y = ${AllStrokes[0].y}\n`)
+console.log(`timeStamps = ${AllStrokes[0].timeStamps}\n`)
