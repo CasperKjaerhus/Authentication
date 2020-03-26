@@ -1,15 +1,6 @@
 const http = require("http");
 const fs = require("fs");
-
-class ServerResource {
-  constructor (method, fileLocation, url, callback) {
-    this.method = method;
-    this.fileLocation = fileLocation;
-    this.url = url;
-    this.callback = callback;
-  }     
-}
-class Server {
+exports.Server = class {
   constructor (port=8000) {
     this.port = port;
     this.resources = [];
@@ -34,16 +25,16 @@ class Server {
               return false;
             }
           });
+
           for (let resource of getResources) {
             if (req.url === resource.url) {
               console.log(`FOUND RESOURCE MATCH: ${resource}`);
               res.writeHead(200);
               res.write(fs.readFileSync(resource.fileLocation));
               res.end();
+              return;
             }
           }
-
-
           break;
 
         case "PUT":
@@ -51,16 +42,12 @@ class Server {
           break;
 
         default:  
-          res.writeHead(404);
           break;
       }
+      res.writeHead(404);
+      //res.write(fs.readFileSync(404_PAGE_FILE_LOCATION));  TODO: 404 side in case 
+      res.end();
     }).listen(this.port);
     console.log("Session started!");
   }
-
 }
-
-
-const server = new Server(8000);
-server.addResource(new ServerResource("GET", "./index.html", "/", () => {}));
-server.start();
