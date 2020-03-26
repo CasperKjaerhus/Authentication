@@ -103,6 +103,6 @@ function drawLine(context, x1, y1, x2, y2) {
 
 /* Add event listener for clear button. Remember to clear AllStrokes array. */
 buttonClear.addEventListener('click', e =>  {
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
   AllStrokes.length = 0;
 });
