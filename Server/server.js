@@ -62,5 +62,7 @@ class Server {
 
 
 const server = new Server(8000);
-server.addResource(new ServerResource("GET", "./index.html", "/", () => {}));
+server.addResource(new ServerResource("GET", "../Website/index.html", "/", () => {}));
+server.addResource(new ServerResource("GET", "../Website/Scripts/canvas.js", "/Scripts/canvas.js", () => {}));
+server.addResource(new ServerResource("GET", "../Website/Style/index.css", "/style/index.css", () => {}));
 server.start();
