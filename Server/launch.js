@@ -13,6 +13,9 @@ server.addResource(new ServerResource("GET", "./index.html", "/", (req, res, res
 
 }));
 
+// const database = new Datastore('database.db');
+// database.loadDatabase();, hvis du genstarter serveren så ja, men det kan du fixe.
+
 server.addResource(new ServerResource("POST", "./submit/database.data", "/submit/", (req, res, resource) => {
 
     res.writeHead(200);
