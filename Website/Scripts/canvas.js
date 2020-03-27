@@ -21,7 +21,7 @@ class Stroke {
   }
 
   get strokeTime() {
-    return this.timeStamps[this.timeStamps.length];
+    return this.timeStamps[this.timeStamps.length-1];
   }
 
   // TODO: Gradient method 
@@ -32,6 +32,7 @@ function drawingDuration(AllStrokes) {
   return AllStrokes.reduce((total, curr) => total + curr);
 }
 
+const buttonSubmit = document.getElementById('buttonSubmit');
 const buttonClear = document.getElementById('buttonClear');
 const drawCanvas = document.getElementById('drawCanvas');
 const context = drawCanvas.getContext('2d');
@@ -102,4 +103,28 @@ function drawLine(context, x1, y1, x2, y2) {
 buttonClear.addEventListener('click', e =>  {
   context.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
   AllStrokes.length = 0;
+});
+
+
+buttonSubmit.addEventListener('click', e =>  {
+  const url = "/submit/database.data";
+  const data = JSON.stringify(AllStrokes);
+
+  const parameters = { 
+    
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8"
+    },
+    body: data
+  };
+
+  fetch(url, parameters)
+  .then(
+    response => response.json() // if the response is a JSON object
+  ).then(
+    success => console.log(success) // Handle the success response object
+  ).catch(
+    error => console.log(error) // Handle the error response object
+  );
 });
