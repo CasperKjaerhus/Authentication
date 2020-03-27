@@ -107,20 +107,24 @@ buttonClear.addEventListener('click', e =>  {
 
 
 buttonSubmit.addEventListener('click', e =>  {
-  const url = "/submit";
+  const url = "/submit/database.data";
   const data = JSON.stringify(AllStrokes);
 
   const parameters = { 
     
-    method: 'POST',
+    method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json; charset=UTF-8"
     },
     body: data
   };
 
   fetch(url, parameters)
-    .then()
-    .then()
-    .catch()
+  .then(
+    response => response.json() // if the response is a JSON object
+  ).then(
+    success => console.log(success) // Handle the success response object
+  ).catch(
+    error => console.log(error) // Handle the error response object
+  );
 });
