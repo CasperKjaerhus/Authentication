@@ -33,16 +33,36 @@ exports.Server = class {
           }
           break;
 
-        case "PUT":
+          
+        case "POST":
+         
+          for (let resource of this.resources) {
+            if (req.url === resource.url && req.method === resource.method) {
+              console.log(`FOUND RESOURCE MATCH: ${resource}`);
+             
+              fs.writeFileSync(resource.fileLocation, req.body);
+
+
+              
+              /*The resources callback is then used to figure out the appropriate response*/
+              resource.callback(req, res, resource);
+
+              res.end();
+              return;
+            }
+          }
           
           break;
 
+
         default:  
+          
+          res.writeHead(404);
+          //res.write(fs.readFileSync(404_PAGE_FILE_LOCATION));  TODO: 404 webpage in case 
+          res.end();
           break;
       }
-      res.writeHead(404);
-      //res.write(fs.readFileSync(404_PAGE_FILE_LOCATION));  TODO: 404 webpage in case 
-      res.end();
+      
     }).listen(this.port);
     console.log("Session started!");
   }
