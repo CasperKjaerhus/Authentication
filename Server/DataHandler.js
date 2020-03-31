@@ -13,13 +13,13 @@ exports.DataHandler = class {
 }
 
 
-/* checks if the file exists */
+/* Checks if the file exists */
 function FileLocCheck(fileLocation) {
   if (fs.existsSync(fileLocation)) {
     console.log("FILE LOCATED");
   }
   else {
-    /*Laver filen hvis ikke */
+    /*Creates the file if it does not exist*/
     console.log("FILE NOT LOCATED, CREATING FILE");
     fs.writeFileSync(fileLocation, "");
   }
