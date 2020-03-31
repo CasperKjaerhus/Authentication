@@ -35,27 +35,37 @@ class Stroke {
   }
 
   set exportStuff() {
-    
-    averageStrokes = new Stroke(0, 0, 0, 0);
+  
     groups = 100;
-    
     subArraySize = Strokes.xArray.length/groups
 
+  
+    // Probably works, co-signed Dino og Neshørm
+    for (property in this) {
+      for (i = 0; i < groups; i++) {
+        this.property.splice(i, subArraySize, 
+                       this.property.slice(i, i + subArraySize)
+                              .reduce((a, b) => a+b)/subArraySize);
+      }
+    }
+
+
+
+
+
+
+
+    averageStrokes = new Stroke(0, 0, 0, 0);
     xArray = [];
     yArray = [];
     timeStamps = [];
     gradArray = [];
-
-
 
     //måske anvend for loop fra linje 32?
     for (property in this){
       for (i = 0; i < this.property.length; i += subArraySize) {
         tempArray.property = this.property.slice(i, i + subArraySize);
         averageStrokes.property.push(tempArray.property.reduce((a, b) => a+b, 0)/subArraySize);
-
-
-
 
         // Reduce er forudsættet at det kan summere og dividere
         // Kan tage et stykke af det øvre array, og average den til en enkelt værdi, uden huller i array. Så formattet er [%########] Hvor % er average værdier, og # er array værdier.
@@ -66,29 +76,11 @@ class Stroke {
           Strokes.property..insert[i].reduce().slice(i, i + chunk);
         }
 
-
        //[%%%###########################################]
 
       }
-    }
-    
-
-    
-      for (i = 0; i < this.property.length; i++) {
-        Strokes.splice(i, subArraySize, 
-                       Strokes.slice(i, i + subArraySize)
-                              .reduce((a, b) => a+b, 0)/100))
-      }
-    
-    
-
-
-    
-    
+    }      
   }
-
-
-
 }
 
 
