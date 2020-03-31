@@ -37,8 +37,9 @@ class Stroke {
   set exportStuff() {
     
     averageStrokes = new Stroke(0, 0, 0, 0);
+    groups = 100;
     
-    subArraySize = Strokes.xArray.length/100
+    subArraySize = Strokes.xArray.length/groups
 
     xArray = [];
     yArray = [];
@@ -70,6 +71,16 @@ class Stroke {
 
       }
     }
+    
+
+    
+      for (i = 0; i < this.property.length; i++) {
+        Strokes.splice(i, subArraySize, 
+                       Strokes.slice(i, i + subArraySize)
+                              .reduce((a, b) => a+b, 0)/100))
+      }
+    
+    
 
 
     
