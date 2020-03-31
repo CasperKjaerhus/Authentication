@@ -70,7 +70,7 @@ drawCanvas.addEventListener('mousemove', e => {
   }
 });
 
-
+/* Stop drawing */
 window.addEventListener('mouseup', e => {
   if (isDrawing === true && e.button === 0) {
     drawLine(context, x, y, e.clientX - rect.left, e.clientY - rect.top);
@@ -105,7 +105,7 @@ buttonClear.addEventListener('click', e =>  {
   AllStrokes.length = 0;
 });
 
-
+/* Button for submitting draw data */
 buttonSubmit.addEventListener('click', e =>  {
   const url = "/submit/database.data";
   const data = JSON.stringify(AllStrokes);
