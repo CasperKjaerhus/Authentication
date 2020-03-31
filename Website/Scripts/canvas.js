@@ -5,32 +5,81 @@ let isDrawing = false;
 let x = 0;
 let y = 0;
 let timerStart = 0;
-let AllStrokes = [];
+let startedDrawing = false;
+let Strokes = undefined;
 
 class Stroke {
   constructor() {
-    this.x = [];
-    this.y = [];
+    this.xArray = [];
+    this.yArray = [];
     this.timeStamps = [];
+    this.gradArray = [];
   }
 
-  push(newX, newY, timeStamp) {
-    this.x.push(newX);
-    this.y.push(newY);
+  push(newX, newY, timeStamp, grad) {
+    this.xArray.push(newX);
+    this.yArray.push(newY);
     this.timeStamps.push(timeStamp);
+    this.gradArray.push(grad);
   }
 
-  get strokeTime() {
-    return this.timeStamps[this.timeStamps.length-1];
+  get gradient(x1, y1, x2, y2) {
+    return (y2-y1)/(x2-x1);
   }
 
-  // TODO: Gradient method 
-}
+  set clear() {
+ 
+    for (property in this) {
+      this.property.length = 0;
+    }
+  }
+
+  set exportStuff() {
+    
+    averageStrokes = new Stroke(0, 0, 0, 0);
+    
+    subArraySize = Strokes.xArray.length/100
+
+    xArray = [];
+    yArray = [];
+    timeStamps = [];
+    gradArray = [];
 
 
-function drawingDuration(AllStrokes) {
-  return AllStrokes.reduce((total, curr) => total + curr);
+
+    //måske anvend for loop fra linje 32?
+    for (property in this){
+      for (i = 0; i < this.property.length; i += subArraySize) {
+        tempArray.property = this.property.slice(i, i + subArraySize);
+        averageStrokes.property.push(tempArray.property.reduce((a, b) => a+b, 0)/subArraySize);
+
+
+
+
+        // Reduce er forudsættet at det kan summere og dividere
+        // Kan tage et stykke af det øvre array, og average den til en enkelt værdi, uden huller i array. Så formattet er [%########] Hvor % er average værdier, og # er array værdier.
+        // Kan bruge slice, men skal slette værdi'er svarende til den nye average, og push average værdien til starten. Splice funktion til array
+
+
+        for (i = 0; i < property.length; i++) {
+          Strokes.property..insert[i].reduce().slice(i, i + chunk);
+        }
+
+
+       //[%%%###########################################]
+
+      }
+    }
+
+
+    
+    
+  }
+
+
+
 }
+
 
 const buttonSubmit = document.getElementById('buttonSubmit');
 const buttonClear = document.getElementById('buttonClear');
@@ -42,16 +91,21 @@ const rect = drawCanvas.getBoundingClientRect();
 
 // Add the event listeners for mousedown, mousemove, and mouseup
 drawCanvas.addEventListener('mousedown', e => {
-  
+
   if (e.button === 0) {  
-    x = e.clientX - rect.left;
-    y = e.clientY - rect.top;
-    timerStart = Date.now();
+
+    if (!startedDrawing) {
+      
+      x = e.clientX - rect.left;
+      y = e.clientY - rect.top;
+      timerStart = Date.now();
+      grad = 0;
+      
+      /* Initialize main object */
+      Strokes = new Stroke(x, y, Date.now() - timerStart, grad);
+      startedDrawing = true;
+    }
     isDrawing = true;
-    
-    // Er det doable?
-    // Test
-    AllStrokes.push(new Stroke(x, y, Date.now() - timerStart));
   }
 });
 
@@ -63,28 +117,21 @@ drawCanvas.addEventListener('mousemove', e => {
     drawLine(context, x, y, e.clientX - rect.left, e.clientY - rect.top);
     x = e.clientX - rect.left;
     y = e.clientY - rect.top;
-  
-    // TODO: feature extract x, y, and time for stroke
-    // Test
-    AllStrokes[AllStrokes.length-1].push(x, y, Date.now() - timerStart);
+    grad = Strokes.gradient(Strokes.xArray[xArray.length-1], Strokes.yArray[yArray.length-1], x, y);
+    
+    Strokes.push(x, y, Date.now() - timerStart, grad);
   }
 });
 
 /* Stop drawing */
 window.addEventListener('mouseup', e => {
+  
   if (isDrawing === true && e.button === 0) {
+
     drawLine(context, x, y, e.clientX - rect.left, e.clientY - rect.top);
     x = 0;
     y = 0;
     isDrawing = false;
-    
-    /* Log test for features
-    for (let i = 0; i < AllStrokes[0].x.length; i++) {
-      console.log(`x = ${AllStrokes[0].x[i]}\n`)
-      console.log(`y = ${AllStrokes[0].y[i]}\n`)
-      console.log(`timeStamps = ${AllStrokes[0].timeStamps[i]}\n`)
-    }
-    */
   }
 });
 
@@ -102,13 +149,14 @@ function drawLine(context, x1, y1, x2, y2) {
 /* Add event listener for clear button. Remember to clear AllStrokes array. */
 buttonClear.addEventListener('click', e =>  {
   context.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-  AllStrokes.length = 0;
+  Strokes.clear();
 });
 
 /* Button for submitting draw data */
 buttonSubmit.addEventListener('click', e =>  {
+  
   const url = "/submit/database.data";
-  const data = JSON.stringify(AllStrokes);
+  const data = JSON.stringify(Strokes);
 
   const parameters = { 
     
