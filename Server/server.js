@@ -25,14 +25,14 @@ exports.Server = class {
           console.log(`FOUND RESOURCE MATCH: ${resource}`);
           
             
-          /*The resources callback is then used to figure out the appropriate response*/
+          /*Callback determines what resource funktion is used (if a resource exists under launch.js the function of said resource is used)*/
           resource.callback(req, res, resource);
 
           res.end();
         }
       }     
       
-      if(!resourceFound) {
+      if (!resourceFound) {
         res.writeHead(404);
         //res.write(fs.readFileSync(404_PAGE_FILE_LOCATION));  TODO: 404 webpage in case 
         res.end();
