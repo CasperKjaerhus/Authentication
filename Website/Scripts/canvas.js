@@ -28,8 +28,8 @@ class Stroke {
   }
 
   clear() {
-    // Error i test. "Assignement to undeclared variable property"
-    for (property in this) {
+    // Error i test. "Assignement to undeclared variable property" (attempted fix med let)
+    for (let property in this) {
       this[property].length = 0;
     }
   }
@@ -45,17 +45,23 @@ class Stroke {
       for (let i = 0; i < groups; i++) {
          
         if (i + subArraySize < groups ) {
-          this[property].splice(i, subArraySize, this[property].slice(i, i + subArraySize).reduce((a, b) => a+b, 0) / subArraySize);
+          const averageSubArray = this[property].slice(i, i + subArraySize);
+          const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / subArraySize;
+          
+          this[property].splice(i, subArraySize, averageCalc);
         }
         else {
-          this[property].splice(i, this[property].length, this[property].slice(i, this[property].length).reduce((a, b) => a+b, 0) / ((this[property].length - 1)  - i));
+          const averageSubArray = this[property].slice(i, this[property].length - 1);
+          const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / ((this[property].length - 1)  - i);
+
+          this[property].splice(i, (this[property].length - 1) - i, averageCalc);
           break;
         }
       }
     }
     
     /*  
-    // Mega klunket, men burde fungere.
+    // Mega klønket 8=D, men burde fungere.
       for (let i = 0; i < groups; i++) {
         this.xArray.splice(i, subArraySize, 
                            this.xArray.slice(i, i + subArraySize)
