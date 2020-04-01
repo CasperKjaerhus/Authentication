@@ -19,12 +19,12 @@ function serve(req, res, resource){
 server.addResource(new ServerResource("POST", "./submit/database.data", "/submit/", (req, res, resource) => {
 
     res.writeHead(200);
+
     let reqBody = '';
     req.on("data", (chunk) => {
         reqBody += chunk;
     });
     req.on("end", () => {
-
         console.log("Message recieved: " + reqBody);
 
         const dataString = JSONToData(reqBody);
@@ -35,6 +35,7 @@ server.addResource(new ServerResource("POST", "./submit/database.data", "/submit
 server.addResource(new ServerResource("GET", "../Website/index.html", "/", serve));
 server.addResource(new ServerResource("GET", "../Website/Scripts/canvas.js", "/Scripts/canvas.js", serve));
 server.addResource(new ServerResource("GET", "../Website/Style/index.css", "/Style/index.css", serve));
+
 server.addResource(new ServerResource("GET", "./testSite.html", "/test", serve));
 
 
