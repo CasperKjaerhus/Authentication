@@ -47,7 +47,7 @@ class Stroke {
         if (i + subArraySize < groups ) {
           const averageSubArray = this[property].slice(i, i + subArraySize);
           const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / subArraySize;
-          
+
           this[property].splice(i, subArraySize, averageCalc);
         }
         else {
