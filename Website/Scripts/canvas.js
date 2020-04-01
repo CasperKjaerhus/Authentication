@@ -23,32 +23,32 @@ class Stroke {
     this.gradArray.push(grad);
   }
 
-  get gradient(x1, y1, x2, y2) {
+  gradient(x1, y1, x2, y2) {
     return (y2-y1)/(x2-x1);
   }
 
-  set clear() {
+  clear() {
  
     for (property in this) {
-      this.property.length = 0;
+      this[property].length = 0;
     }
   }
 
-  set exportStuff() {
+  exportStuff() {
   
     groups = 100;
-    subArraySize = Strokes.xArray.length/groups
+    let subArraySize = Math.ceil(this.xArray.length/groups);
 
-  
-    // Probably works, co-signed Dino og Neshørm
-    for (property in this) {
-      for (i = 0; i < groups; i++) {
-        this.property.splice(i, subArraySize, 
-                       this.property.slice(i, i + subArraySize)
-                              .reduce((a, b) => a+b)/subArraySize);
+    console.log(this);
+
+    for (let property in this) { 
+      for (let i = 0; i < groups; i++) {
+        this[property].splice(i, subArraySize, this[property].slice(i, i + subArraySize).reduce((a, b) => a+b) / subArraySize);
       }
     }
+    console.log(this);
 
+  /*
     // Mega klunket, men burde fungere.
     for (property in this) {
       for (i = 0; i < groups; i++) {
@@ -68,81 +68,7 @@ class Stroke {
                            this.gradArray.slice(i, i + subArraySize)
                                .reduce((a, b) => a+b)/subArraySize);
       }
-    }
-
-
-    /* Testet eksempel. Eneste fejl er i exportStuff, når x bliver skiftet ud med this.property
-    class num {
-      constructor() {
-        this.x = [];
-        this.y = [];
-      }
-    
-      exportStuff() {
-    
-        let groups = 5;
-        let subArraySize = this.x.length / groups;
-    
-          for (i = 0; i < groups; i++) {
-     
-              this.x.splice(i, subArraySize, 
-                             this.x.slice(i, i + subArraySize)
-                                    .reduce((a, b) => a+b)/subArraySize);
-    
-        }
-      }
-      
-      push(newX, newY) {
-        this.x.push(newX);
-        this.y.push(newY);    
-      }
-    }
-    
-    let numbers1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-    let numbers2 = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
-    let numbers = new num(numbers1, numbers2);
-    
-    for (i = 0; i < numbers1.length; i++) {
-      
-      numbers.push(numbers1[i], numbers2[i]);
-     
-    }
-    
-    console.log(numbers.x);
-    console.log(numbers.y);
-    
-    numbers.exportStuff();
-    
-    console.log(numbers.x);
-    console.log(numbers.y);*/
-
-    /*
-
-    averageStrokes = new Stroke(0, 0, 0, 0);
-    xArray = [];
-    yArray = [];
-    timeStamps = [];
-    gradArray = [];*/
-
-    //måske anvend for loop fra linje 32?
-   /* for (property in this) {
-      for (i = 0; i < this.property.length; i += subArraySize) {
-        tempArray.property = this.property.slice(i, i + subArraySize);
-        averageStrokes.property.push(tempArray.property.reduce((a, b) => a+b, 0)/subArraySize);*/
-
-        // Reduce er forudsættet at det kan summere og dividere
-        // Kan tage et stykke af det øvre array, og average den til en enkelt værdi, uden huller i array. Så formattet er [%########] Hvor % er average værdier, og # er array værdier.
-        // Kan bruge slice, men skal slette værdi'er svarende til den nye average, og push average værdien til starten. Splice funktion til array
-
-
-      /*  for (i = 0; i < property.length; i++) {
-          Strokes.property..insert[i].reduce().slice(i, i + chunk);
-        }*/
-
-       //[%%%###########################################]
-/*
-      }
-    }      */
+    }*/
   } 
 }
 
@@ -221,6 +147,9 @@ buttonClear.addEventListener('click', e =>  {
 /* Button for submitting draw data */
 buttonSubmit.addEventListener('click', e =>  {
   
+  Strokes.exportStuff();
+
+/*  
   const url = "/submit/database.data";
   const data = JSON.stringify(Strokes);
 
@@ -241,4 +170,5 @@ buttonSubmit.addEventListener('click', e =>  {
   ).catch(
     error => console.log(error) // Handle the error response object
   );
+  */
 });
