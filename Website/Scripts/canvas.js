@@ -1,12 +1,12 @@
 'use strict';
 
-// When true, moving the mouse draws on the canvas
-let isDrawing = false;
-let x = 0;
-let y = 0;
-let timerStart = 0;
 let startedDrawing = false;
 let Strokes = undefined;
+let isDrawing = false;
+let timerStart = 0;
+let grad = 0;
+let x = 0;
+let y = 0;
 
 class Stroke {
   constructor() {
@@ -28,7 +28,7 @@ class Stroke {
   }
 
   clear() {
- 
+    // Error i test. "Assignement to undeclared variable property"
     for (property in this) {
       this[property].length = 0;
     }
@@ -36,22 +36,27 @@ class Stroke {
 
   exportStuff() {
   
-    groups = 100;
+    let groups = 100;
     let subArraySize = Math.ceil(this.xArray.length/groups);
 
-    console.log(this);
-
+    // Under construction
     for (let property in this) { 
+      
       for (let i = 0; i < groups; i++) {
-        this[property].splice(i, subArraySize, this[property].slice(i, i + subArraySize).reduce((a, b) => a+b) / subArraySize);
+         
+        if (i + subArraySize < groups ) {
+          this[property].splice(i, subArraySize, this[property].slice(i, i + subArraySize).reduce((a, b) => a+b, 0) / subArraySize);
+        }
+        else {
+          this[property].splice(i, this[property].length, this[property].slice(i, this[property].length).reduce((a, b) => a+b, 0) / ((this[property].length - 1)  - i));
+          break;
+        }
       }
     }
-    console.log(this);
-
-  /*
+    
+    /*  
     // Mega klunket, men burde fungere.
-    for (property in this) {
-      for (i = 0; i < groups; i++) {
+      for (let i = 0; i < groups; i++) {
         this.xArray.splice(i, subArraySize, 
                            this.xArray.slice(i, i + subArraySize)
                                .reduce((a, b) => a+b)/subArraySize);
@@ -67,8 +72,7 @@ class Stroke {
         this.gradArray.splice(i, subArraySize, 
                            this.gradArray.slice(i, i + subArraySize)
                                .reduce((a, b) => a+b)/subArraySize);
-      }
-    }*/
+      }*/
   } 
 }
 
@@ -86,10 +90,11 @@ drawCanvas.addEventListener('mousedown', e => {
 
   if (e.button === 0) {  
 
+    x = e.clientX - rect.left;
+    y = e.clientY - rect.top;
+
     if (!startedDrawing) {
       
-      x = e.clientX - rect.left;
-      y = e.clientY - rect.top;
       timerStart = Date.now();
       grad = 0;
       
@@ -109,11 +114,12 @@ drawCanvas.addEventListener('mousemove', e => {
     drawLine(context, x, y, e.clientX - rect.left, e.clientY - rect.top);
     x = e.clientX - rect.left;
     y = e.clientY - rect.top;
-    grad = Strokes.gradient(Strokes.xArray[xArray.length-1], Strokes.yArray[yArray.length-1], x, y);
+    grad = Strokes.gradient(Strokes.xArray[Strokes.xArray.length-1], Strokes.yArray[Strokes.yArray.length-1], x, y);
     
     Strokes.push(x, y, Date.now() - timerStart, grad);
   }
 });
+
 
 /* Stop drawing */
 window.addEventListener('mouseup', e => {
@@ -121,8 +127,7 @@ window.addEventListener('mouseup', e => {
   if (isDrawing === true && e.button === 0) {
 
     drawLine(context, x, y, e.clientX - rect.left, e.clientY - rect.top);
-    x = 0;
-    y = 0;
+    
     isDrawing = false;
   }
 });
@@ -138,18 +143,19 @@ function drawLine(context, x1, y1, x2, y2) {
   context.closePath();
 }
 
+
 /* Add event listener for clear button. Remember to clear AllStrokes array. */
 buttonClear.addEventListener('click', e =>  {
   context.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
   Strokes.clear();
 });
 
+
 /* Button for submitting draw data */
 buttonSubmit.addEventListener('click', e =>  {
   
   Strokes.exportStuff();
-
-/*  
+  
   const url = "/submit/database.data";
   const data = JSON.stringify(Strokes);
 
@@ -170,5 +176,4 @@ buttonSubmit.addEventListener('click', e =>  {
   ).catch(
     error => console.log(error) // Handle the error response object
   );
-  */
 });
