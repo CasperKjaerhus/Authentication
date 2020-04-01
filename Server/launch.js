@@ -1,6 +1,8 @@
 const Server = require("./server.js").Server;
 const ServerResource = require("./ServerResource.js").ServerResource;
 const DataHandler = require("./DataHandler.js").DataHandler;
+const JSONToData = require("./DataHandler.js").JSONToData;
+const http = require("http");
 const fs = require("fs");
 
 const server = new Server(8000);
@@ -17,16 +19,23 @@ function serve(req, res, resource){
 server.addResource(new ServerResource("POST", "./submit/database.data", "/submit/", (req, res, resource) => {
 
     res.writeHead(200);
+    let reqBody = '';
+    req.on("data", (chunk) => {
+        reqBody += chunk;
+    });
+    req.on("end", () => {
 
-    //Dino test (om filen er modtaget)
-    //res.write(fs.readFileSync(resource.fileLocation));
+        console.log("Message recieved: " + reqBody);
 
+        const dataString = JSONToData(reqBody);
+        NNData.addEntry(dataString);
+    });
 }));
 
 server.addResource(new ServerResource("GET", "../Website/index.html", "/", serve));
 server.addResource(new ServerResource("GET", "../Website/Scripts/canvas.js", "/Scripts/canvas.js", serve));
 server.addResource(new ServerResource("GET", "../Website/Style/index.css", "/Style/index.css", serve));
-
+server.addResource(new ServerResource("GET", "./testSite.html", "/test", serve));
 
 
 server.start();
