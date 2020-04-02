@@ -22,19 +22,21 @@ exports.DataHandler = class {
       const writeStream = fs.createWriteStream(this.fileLocation, {start: 0, flags: "r+"});
 
       this.rows++;
-
-
-      //When data is appended to the file, the writeStream adds +1 to the row counter, which is on the first line of the file.
-      writeStream.write(`${this.rows.toString()} ${this.coloumns.toString()}`, (err) => {
+      
+      if (this.rows > 1) {
+        fs.appendFileSync(this.fileLocation, `\n` + `${entry}`);
+      }
+      else {
+        fs.appendFileSync(this.fileLocation, `${entry}`);
+      }
+      
+      console.log(`ROWS ADDENTRY: ${this.rows}`);
+      //When data is appended to the file, the writeStream adds +1 to the row counter, a space afterwards and the amount of coloumns. This all happens on the first line
+      writeStream.write(`${this.rows.toString()} ${this.coloumns.toString()}\n`, (err) => { 
         if (err) {
           console.log(err);
         }
-
-        writeStream.end(() => {
-          if(this.rows > 1){
-            fs.appendFileSync(this.fileLocation, `\n${entry}`);
-          }
-        });
+        writeStream.end();
       });
       
     }
@@ -44,10 +46,10 @@ exports.JSONToData = function(dataJSONString) {
 
   const dataObject = JSON.parse(dataJSONString);
   let dataString = "";
-  for (let i = 0; i < dataObject.xArray.length; i++){
+  for (let i = 0; i < dataObject.xArray.length; i++) {
     /*FIX: SPACING AT END/START*/
     dataString += `${dataObject.xArray[i]} ${dataObject.yArray[i]} ${dataObject.timeStamps[i]} ${dataObject.gradArray[i]}`; /* What actually goes into gradArray? What is the input?*/
-    if(i <= dataObject.xArray.length-1){
+    if (i <= dataObject.xArray.length-1) {
       dataString += " "; /*Adds a whitespace between*/
     }
   }
@@ -63,6 +65,7 @@ function PathCheck(fileLocation, coloumns) {
   FileLocCheck(fileLocation, coloumns)
 }   
 
+
 /* Checks if the file exists */
 function FileLocCheck(fileLocation, coloumns) {
   if (fs.existsSync(fileLocation)) {
@@ -71,9 +74,10 @@ function FileLocCheck(fileLocation, coloumns) {
   else {
     /*Creates the file if it does not exist*/
     console.log("FILE NOT LOCATED, CREATING FILE");
-    fs.writeFileSync(fileLocation, `0 ${coloumns}`);
+    fs.writeFileSync(fileLocation, `0 ${coloumns}\n`);
   }
 }
+
 
 async function LoadRows(fileLocation) {
   let returnData = 0; 
