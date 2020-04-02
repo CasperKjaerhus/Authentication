@@ -5,14 +5,13 @@ exports.DataHandler = class {
     constructor (fileLocation, coloumns=1200) {
         this.coloumns = coloumns;
         this.fileLocation = fileLocation;
-        this.rows = undefined;
+        this.rows = null;
         PathCheck(fileLocation, coloumns);
     }
 
     /* Function to initialise class, this has to be async since we need to wait for LoadRows to finish.*/
     async init() {
         await LoadRows(this.fileLocation).then((result) => {
-          console.log(`res: ${result}`);
           this.rows = result;
         });   
     }
@@ -26,13 +25,15 @@ exports.DataHandler = class {
 
 
       //When data is appended to the file, the writeStream adds +1 to the row counter, which is on the first line of the file.
-      writeStream.write(this.rows.toString(), (err) => {
+      writeStream.write(`${this.rows.toString()} ${this.coloumns.toString()}`, (err) => {
         if (err) {
           console.log(err);
         }
 
         writeStream.end(() => {
-          fs.appendFileSync(this.fileLocation, `\n${entry}`);
+          if(this.rows > 1){
+            fs.appendFileSync(this.fileLocation, `\n${entry}`);
+          }
         });
       });
       
@@ -53,6 +54,15 @@ exports.JSONToData = function(dataJSONString) {
   return dataString;
 }
 
+
+/*Checks if the folder "submit" exists, if not, creates it, and runs FileLocCheck*/
+function PathCheck(fileLocation, coloumns) { 
+  if (fs.existsSync('./submit') === false) {
+    fs.mkdirSync('./submit');
+  }
+  FileLocCheck(fileLocation, coloumns)
+}   
+
 /* Checks if the file exists */
 function FileLocCheck(fileLocation, coloumns) {
   if (fs.existsSync(fileLocation)) {
@@ -64,13 +74,6 @@ function FileLocCheck(fileLocation, coloumns) {
     fs.writeFileSync(fileLocation, `0 ${coloumns}`);
   }
 }
-/*Checks if the folder "submit" exists, if not, creates it, and runs FileLocCheck*/
-function PathCheck(fileLocation, coloumns) { 
-  if (fs.existsSync('./submit') === false) {
-    fs.mkdirSync('./submit');
-  }
-  FileLocCheck(fileLocation, coloumns)
-}      
 
 async function LoadRows(fileLocation) {
   let returnData = 0; 

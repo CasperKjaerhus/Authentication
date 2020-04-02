@@ -15,33 +15,35 @@ function serve(req, res, resource){
     res.writeHead(200);
     res.write(fs.readFileSync(resource.fileLocation));
 }
+NNData.addEntry("5 6 7 2 7 1 9 12346 45368");
+NNData.addEntry("5 6 7 2 7 1 9 5 45368");
 
 NNData.init().then(() => {
 
-    server.addResource(new ServerResource("POST", "./submit/database.data", "/submit/", (req, res, resource) => {
+  server.addResource(new ServerResource("POST", "./submit/database.data", "/submit/", (req, res, resource) => {
 
-        res.writeHead(200);
+  res.writeHead(200);
 
-        let reqBody = '';
-        req.on("data", (chunk) => {
-            reqBody += chunk;
-        });
-        req.on("end", () => {
-            console.log("Message recieved: " + reqBody);
+    let reqBody = '';
+    req.on("data", (chunk) => {
+      reqBody += chunk;
+    });
+    req.on("end", () => {
+      console.log("Message recieved: " + reqBody);
 
-            const dataString = JSONToData(reqBody);
-            NNData.addEntry(dataString);
-        });
-    }));
+      const dataString = JSONToData(reqBody);
+      NNData.addEntry(dataString);
+    });
+  }));
 
-    server.addResource(new ServerResource("GET", "../Website/index.html", "/", serve));
-    server.addResource(new ServerResource("GET", "../Website/Scripts/canvas.js", "/Scripts/canvas.js", serve));
-    server.addResource(new ServerResource("GET", "../Website/Style/index.css", "/Style/index.css", serve));
+  server.addResource(new ServerResource("GET", "../Website/index.html", "/", serve));
+  server.addResource(new ServerResource("GET", "../Website/Scripts/canvas.js", "/Scripts/canvas.js", serve));
+  server.addResource(new ServerResource("GET", "../Website/Style/index.css", "/Style/index.css", serve));
 
-    server.addResource(new ServerResource("GET", "./testSite.html", "/test", serve));
+  server.addResource(new ServerResource("GET", "./testSite.html", "/test", serve));
 
-    console.log("Rows: " + NNData.rows);
+  console.log("Rows: " + NNData.rows);
 
-    server.start();
+  server.start();
 
 });
