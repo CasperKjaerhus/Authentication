@@ -17,28 +17,12 @@ exports.DataHandler = class {
     }
 
     /*Adds a data entry into ./submit/data in specified format*/
-    addEntry(entry) {
-      /*FIX: whitespace in data gets deleted between row and coloumn number when rows extends to new digit*/
-      const writeStream = fs.createWriteStream(this.fileLocation, {start: 0, flags: "r+"});
+    async addEntry(entry) {
 
-      this.rows++;
+      await removeFirstLine(this.fileLocation);
       
-      if (this.rows > 1) {
-        fs.appendFileSync(this.fileLocation, `\n` + `${entry}`);
-      }
-      else {
-        fs.appendFileSync(this.fileLocation, `${entry}`);
-      }
-      
-      console.log(`ROWS ADDENTRY: ${this.rows}`);
-      //When data is appended to the file, the writeStream adds +1 to the row counter, a space afterwards and the amount of coloumns. This all happens on the first line
-      writeStream.write(`${this.rows.toString()} ${this.coloumns.toString()}\n`, (err) => { 
-        if (err) {
-          console.log(err);
-        }
-        writeStream.end();
-      });
-      
+
+
     }
 }
 
@@ -47,7 +31,6 @@ exports.JSONToData = function(dataJSONString) {
   const dataObject = JSON.parse(dataJSONString);
   let dataString = "";
   for (let i = 0; i < dataObject.xArray.length; i++) {
-    /*FIX: SPACING AT END/START*/
     dataString += `${dataObject.xArray[i]} ${dataObject.yArray[i]} ${dataObject.timeStamps[i]} ${dataObject.gradArray[i]}`; /* What actually goes into gradArray? What is the input?*/
     if (i <= dataObject.xArray.length-1) {
       dataString += " "; /*Adds a whitespace between*/
@@ -56,6 +39,33 @@ exports.JSONToData = function(dataJSONString) {
   return dataString;
 }
 
+
+async function removeFirstLine(fileLocation) {
+  const promise = new Promise((resolve, reject) => {
+
+    const interface = readline.createInterface({
+    input: fs.createReadStream(fileLocation)
+    })
+
+    const output = fs.createWriteStream(fileLocation);
+    let firstRemoved = false;
+
+    interface.on("line", (line) => {
+
+      if(!firstRemoved) {
+        firstRemoved = true;
+
+      } else {
+      output.write(line + '\n')
+
+      } 
+    }).on("end", () => {
+      interface.close();
+      resolve();
+    })
+  });
+  await promise;
+}
 
 /*Checks if the folder "submit" exists, if not, creates it, and runs FileLocCheck*/
 function PathCheck(fileLocation, coloumns) { 
