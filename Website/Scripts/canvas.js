@@ -11,7 +11,7 @@ let smallestX = 0;
 let smallestY = 0;
 
 
-class Stroke {
+class Drawing {
   constructor(x, y, timeStamp, grad) {
     this.xArray = [x];
     this.yArray = [y];
@@ -38,7 +38,6 @@ class Stroke {
 
   // Clears the object arrays
   clear() {
-    // Error i test. "Assignement to undeclared variable property" (attempted fix med let)
     context.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
 
     for (let property in this) {
@@ -46,26 +45,13 @@ class Stroke {
     }
   }
 
-  // Shrinks the object for export to server
+  // Shrinks the object for export to server to desired inputsize
   exportStuff() {
   
     let groups = 100;
     let subArraySize = Math.ceil(this.xArray.length/groups);
 
     for (let property in this) { 
-
-
-      /* Tester pt
-      if (property === xArray) {
-        this[property].forEach(element => smallestX - element);
-      }
-      if (property === yArray) {
-        this[property].forEach(element => smallestY - element);
-      }*/
-
-
-
-
 
       for (let i = 0; i < groups; i++) {
         
@@ -111,7 +97,7 @@ drawCanvas.addEventListener('mousedown', e => {
       grad = 0;
       
       /* Initialize main object */
-      Strokes = new Stroke(x, y, Date.now() - timerStart, grad);
+      drawing = new Drawing(x, y, Date.now() - timerStart, grad);
       startedDrawing = true;
     }
     isDrawing = true;
@@ -126,13 +112,13 @@ drawCanvas.addEventListener('mousemove', e => {
     drawLine(context, x, y, e.clientX - rect.left, e.clientY - rect.top);
     x = e.clientX - rect.left;
     y = e.clientY - rect.top;
-    grad = Strokes.gradient(Strokes.xArray.length-1, Strokes.yArray.length-1, x, y);
+    grad = drawing.gradient(drawing.xArray.length-1, drawing.yArray.length-1, x, y);
     
     /*
     smallestX = smallestX > x ? x : smallestX;
     smallestY = smallestY > y ? y : smallestY;
     */
-    Strokes.push(x, y, Date.now() - timerStart, grad);
+    drawing.push(x, y, Date.now() - timerStart, grad);
   }
 });
 
@@ -162,19 +148,19 @@ function drawLine(context, x1, y1, x2, y2) {
 
 /*  */
 buttonClear.addEventListener('click', e =>  {
-  Strokes.clear();
+  drawing.clear();
 });
 
 
 /* Button for submitting draw data */
 buttonSubmit.addEventListener('click', e =>  {
  
-  Strokes.exportStuff();
+  drawing.exportStuff();
 
   const url = "/submit/";
-  const data = JSON.stringify(Strokes);
+  const data = JSON.stringify(drawing);
 
-  Strokes.clear();
+  drawing.clear();
 
   const parameters = {
     method: "POST",
