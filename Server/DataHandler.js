@@ -11,85 +11,48 @@ exports.DataHandler = class {
 
     /* Function to initialise class, this has to be async since we need to wait for LoadRows to finish.*/
     async init() {
-        await LoadRows(this.fileLocation).then((result) => {
+        await CountRows(this.fileLocation).then((result) => {
           this.rows = result;
         });   
     }
 
-    /*Adds a data entry into ./submit/data in specified format*/
+    /*Adds a data entry into fileLocation*/
     async addEntry(entry) {
+      let data;
 
-      await removeFirstLine(this.fileLocation);
-      
-
-
-    }
-}
-
-exports.JSONToData = function(dataJSONString) {
-
-  const dataObject = JSON.parse(dataJSONString);
-  let dataString = "";
-  for (let i = 0; i < dataObject.xArray.length; i++) {
-    dataString += `${dataObject.xArray[i]} ${dataObject.yArray[i]} ${dataObject.timeStamps[i]} ${dataObject.gradArray[i]}`; /* What actually goes into gradArray? What is the input?*/
-    if (i <= dataObject.xArray.length-1) {
-      dataString += " "; /*Adds a whitespace between*/
-    }
-  }
-  return dataString;
-}
-
-
-async function removeFirstLine(fileLocation) {
-  const promise = new Promise((resolve, reject) => {
-
-    const interface = readline.createInterface({
-    input: fs.createReadStream(fileLocation)
-    })
-
-    const output = fs.createWriteStream(fileLocation);
-    let firstRemoved = false;
-
-    interface.on("line", (line) => {
-
-      if(!firstRemoved) {
-        firstRemoved = true;
-
+      if (this.rows > 0) {
+        data = `\n${entry}`;
       } else {
-      output.write(line + '\n')
+        data = entry;
+      }
 
-      } 
-    }).on("end", () => {
-      interface.close();
-      resolve();
-    })
-  });
-  await promise;
-}
+      fs.appendFile(this.fileLocation, data, (err) =>{
+        console.log(`Error: ${err}`);
+      })
+      this.rows++;
+    }
 
-/*Checks if the folder "submit" exists, if not, creates it, and runs FileLocCheck*/
-function PathCheck(fileLocation, coloumns) { 
-  if (fs.existsSync('./submit') === false) {
-    fs.mkdirSync('./submit');
-  }
-  FileLocCheck(fileLocation, coloumns)
-}   
+    static JSONToData(dataJSONString) {
 
+      const dataObject = JSON.parse(dataJSONString);
+      let dataString = "";
 
-/* Checks if the file exists */
-function FileLocCheck(fileLocation, coloumns) {
-  if (fs.existsSync(fileLocation)) {
-    console.log("FILE LOCATED");
-  }
-  else {
-    /*Creates the file if it does not exist*/
-    console.log("FILE NOT LOCATED, CREATING FILE");
-    fs.writeFileSync(fileLocation, `0 ${coloumns}\n`);
-  }
+      for (let i = 0; i < dataObject.xArray.length; i++) {
+        dataString += `${dataObject.xArray[i]} ${dataObject.yArray[i]} ${dataObject.timeStamps[i]} ${dataObject.gradArray[i]}`; /* What actually goes into gradArray? What is the input?*/
+        
+        if (i <= dataObject.xArray.length-1) {
+          dataString += " "; /*Adds a whitespace between*/
+        }
+      }
+
+      return dataString;
+    }
 }
 
 
-async function LoadRows(fileLocation) {
+
+
+async function CountRows(fileLocation) {
   let returnData = 0; 
   const prom = new Promise((resolve, reject) => {
 
@@ -99,15 +62,12 @@ async function LoadRows(fileLocation) {
     });
 
     readlineInterface.on("line", (input) => {
-        if (linenum === 0) {
-          linenum++;
-          let FirstSpace = input.indexOf(' ');
-          resolve(input.slice(0,FirstSpace));
-        }
+      linenum++;
     });
     
     readlineInterface.on("end", () => {
       readlineInterface.close();
+      resolve(linenum);
     }); 
   });
 
