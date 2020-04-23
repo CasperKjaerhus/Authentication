@@ -4,10 +4,16 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" type="text/css" href="./Style/index.css">
-        <script src="./Scripts/canvas.js" defer></script>
+        <script src="./Scripts/canvas_module.js" defer></script>
     </head>
     <body>
         <h1>Canvas overview</h1>
+
+        <form id="loginForm">
+          <input type="text" name="username" placeholder="Username" value="">
+          <input id="loginButton" type="submit" value="Login!">
+        </form>
+
         <canvas id="drawCanvas"></canvas>
         <button id="buttonClear">Clear</button>
         <button id="buttonSubmit">Submit</button>

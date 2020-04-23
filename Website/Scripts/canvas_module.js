@@ -1,7 +1,6 @@
 'use strict';
 
 let startedDrawing = false;
-let Strokes = undefined;
 let isDrawing = false;
 let timerStart = 0;
 let grad = 0;
@@ -11,7 +10,7 @@ let smallestX = 0;
 let smallestY = 0;
 let drawing = undefined;
 
-class Drawing {
+export class Drawing {
   constructor(x, y, timeStamp, grad) {
     this.xArray = [x];
     this.yArray = [y];
@@ -74,16 +73,17 @@ class Drawing {
   }
 }
 
-class Canvas {
-  constructor(id) {
+export class Canvas {
+  constructor(id, drawing) {
     this.element = document.getElementById(`${id}`);
     this.context = this.element.getContext('2d');
     this.rect    = this.element.getBoundingClientRect();  // The x and y offset of the canvas from the edge of the page
     this.clearButton = document.getElementById('buttonClear');
     this.element.addEventListener('mousedown', mousedown(this.rect));
     this.element.addEventListener('mousemove', mousemove(this.rect));
-    this.element.addEventListener('mouseup', mouseup(this.rect));
+    window.addEventListener('mouseup', mouseup(this.rect));
     this.clearButton.addEventListener('click', clearEventListener(this.context));
+    this.currDrawing = drawing;
   }
 
   drawLine(x1, y1, x2, y2) {
@@ -97,7 +97,8 @@ class Canvas {
   }
 }
 
-const canvas = new Canvas('drawCanvas');
+
+const canvas = new Canvas('drawCanvas', drawing);
 
 function mousedown(rect) {
   return e => {
@@ -123,7 +124,6 @@ function mousedown(rect) {
 
 
 // Add the event listeners for mousedown, mousemove, and mouseup
-const buttonSubmit = document.getElementById('buttonSubmit');
 
 
 
@@ -137,6 +137,7 @@ function mousemove(rect) {
       grad = drawing.gradient(drawing.xArray.length-1, drawing.yArray.length-1, x, y);
       
       /*
+      Below is the code for correcting the position of the drawing
       smallestX = smallestX > x ? x : smallestX;
       smallestY = smallestY > y ? y : smallestY;
       */
@@ -164,31 +165,3 @@ function clearEventListener(context) {
 };
 
 
-/* Button for submitting draw data */
-buttonSubmit.addEventListener('click', e =>  {
- 
-  drawing.exportStuff();
-
-  const url = "/submit/";
-  const data = JSON.stringify(drawing);
-
-  drawing.clear();
-
-  const parameters = {
-    method: "POST",
-    body: data
-  };
-
-  fetch(url, parameters)
-    .then(
-      function(response) {
-        if (response.status > 399) { 
-          console.log('Looks like there was a problem. Status Code: ' + response.status);
-          return;
-        }
-      }
-    )
-    .catch(function(err) {
-      console.log('Fetch Error :-S', err);
-    });
-});

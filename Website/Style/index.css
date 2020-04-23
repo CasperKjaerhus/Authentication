@@ -1,3 +1,12 @@
+body {
+    margin-left: 20px;
+}
+
 #drawCanvas {
+    border: 1px solid black;
+}
+
+div {
+    margin: 10px auto;
     border: 1px solid black;
 }
