@@ -9,7 +9,7 @@ let x = 0;
 let y = 0;
 let smallestX = 0;
 let smallestY = 0;
-
+const drawing = undefined;
 
 class Drawing {
   constructor(x, y, timeStamp, grad) {
@@ -37,8 +37,8 @@ class Drawing {
   }
 
   // Clears the object arrays
-  clear() {
-    context.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+  clear(canvas) {
+    canvas.context.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
 
     for (let property in this) {
       this[property].length = 0;
@@ -74,19 +74,42 @@ class Drawing {
   }
 }
 
+class Canvas {
+  constructor(id) {
+    this.element = document.getElementById(`${id}`);
+    this.context = this.element.getContext('2d');
+    this.rect = this.element.getBoundingClientRect();  // The x and y offset of the canvas from the edge of the page
+    this.clearButton = document.getElementById('buttonClear')
+  }
 
-const buttonSubmit = document.getElementById('buttonSubmit');
-const buttonClear = document.getElementById('buttonClear');
+  addEventListener(handler) {
+    if (handler !== 'clearEventListener') {
+      this.element.addEventListener(handler);
+    }
+    else {
+      this.clearButton.addEventListener(handler);
+    }
+  }
 
+  drawLine(x1, y1, x2, y2) {
+    this.context.beginPath();
+    this.context.strokeStyle = 'black';
+    this.context.lineWidth = 1;
+    this.context.moveTo(x1, y1);
+    this.context.lineTo(x2, y2);
+    this.context.stroke();
+    this.context.closePath();
+  }
+}
 
-const drawCanvas = document.getElementById('drawCanvas');
-const context = drawCanvas.getContext('2d');
+const canvas = new Canvas(drawCanvas);
 
-// The x and y offset of the canvas from the edge of the page
-const rect = drawCanvas.getBoundingClientRect();
+canvas.addEventListener(mousedown);
+canvas.addEventListener(mousemove);
+window.addEventListener(mouseup);
+canvas.clearCanvas(clearEventListener);
 
-// Add the event listeners for mousedown, mousemove, and mouseup
-drawCanvas.addEventListener('mousedown', e => {
+function mousedown('mousedown', e) {
   if (e.button === 0) {  
 
     x = e.clientX - rect.left;
@@ -107,7 +130,12 @@ drawCanvas.addEventListener('mousedown', e => {
 });
 
 
-drawCanvas.addEventListener('mousemove', e => {
+// Add the event listeners for mousedown, mousemove, and mouseup
+const buttonSubmit = document.getElementById('buttonSubmit');
+
+
+
+function mousemove('mousemove', e) {
   /*TODO: Out of bounds mouse movements should stop current stroke*/
 
   if (isDrawing === true && e.button === 0) {
@@ -126,7 +154,7 @@ drawCanvas.addEventListener('mousemove', e => {
 
 
 /* Stop drawing */
-window.addEventListener('mouseup', e => {
+function mouseup('mouseup', e) {
   
   if (isDrawing === true && e.button === 0) {
 
@@ -136,21 +164,9 @@ window.addEventListener('mouseup', e => {
   }
 });
 
-
-function drawLine(context, x1, y1, x2, y2) {
-  context.beginPath();
-  context.strokeStyle = 'black';
-  context.lineWidth = 1;
-  context.moveTo(x1, y1);
-  context.lineTo(x2, y2);
-  context.stroke();
-  context.closePath();
-}
-
-
 /*  */
-buttonClear.addEventListener('click', e =>  {
-  drawing.clear();
+function clearEventListener('click', drawingObj, canvas) {
+  drawingObj.clear(canvas);
 });
 
 
