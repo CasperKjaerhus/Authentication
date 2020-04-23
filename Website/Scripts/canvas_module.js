@@ -9,7 +9,7 @@ let x = 0;
 let y = 0;
 let smallestX = 0;
 let smallestY = 0;
-const drawing = undefined;
+let drawing = undefined;
 
 class Drawing {
   constructor(x, y, timeStamp, grad) {
@@ -37,8 +37,8 @@ class Drawing {
   }
 
   // Clears the object arrays
-  clear(canvas) {
-    canvas.context.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+  clear(context) {
+    context.clearRect(0, 0, canvas.element.width, canvas.element.height);
 
     for (let property in this) {
       this[property].length = 0;
@@ -78,17 +78,12 @@ class Canvas {
   constructor(id) {
     this.element = document.getElementById(`${id}`);
     this.context = this.element.getContext('2d');
-    this.rect = this.element.getBoundingClientRect();  // The x and y offset of the canvas from the edge of the page
-    this.clearButton = document.getElementById('buttonClear')
-  }
-
-  addEventListener(handler) {
-    if (handler !== 'clearEventListener') {
-      this.element.addEventListener(handler);
-    }
-    else {
-      this.clearButton.addEventListener(handler);
-    }
+    this.rect    = this.element.getBoundingClientRect();  // The x and y offset of the canvas from the edge of the page
+    this.clearButton = document.getElementById('buttonClear');
+    this.element.addEventListener('mousedown', mousedown(this.rect));
+    this.element.addEventListener('mousemove', mousemove(this.rect));
+    this.element.addEventListener('mouseup', mouseup(this.rect));
+    this.clearButton.addEventListener('click', clearEventListener(this.context));
   }
 
   drawLine(x1, y1, x2, y2) {
@@ -102,32 +97,29 @@ class Canvas {
   }
 }
 
-const canvas = new Canvas(drawCanvas);
+const canvas = new Canvas('drawCanvas');
 
-canvas.addEventListener(mousedown);
-canvas.addEventListener(mousemove);
-window.addEventListener(mouseup);
-canvas.clearCanvas(clearEventListener);
+function mousedown(rect) {
+  return e => {
+    if (e.button === 0) {  
 
-function mousedown('mousedown', e) {
-  if (e.button === 0) {  
+      x = e.clientX - rect.left;
+      y = e.clientY - rect.top;
 
-    x = e.clientX - rect.left;
-    y = e.clientY - rect.top;
-
-    if (startedDrawing === false) {
-      e.preventDefault();
-      
-      timerStart = Date.now();
-      grad = 0;
-      
-      /* Initialize main object */
-      drawing = new Drawing(x, y, Date.now() - timerStart, grad);
-      startedDrawing = true;
+      if (startedDrawing === false) {
+        e.preventDefault();
+        
+        timerStart = Date.now();
+        grad = 0;
+        
+        /* Initialize main object */
+        drawing = new Drawing(x, y, Date.now() - timerStart, grad);
+        startedDrawing = true;
+      }
+      isDrawing = true;
     }
-    isDrawing = true;
   }
-});
+};
 
 
 // Add the event listeners for mousedown, mousemove, and mouseup
@@ -135,39 +127,41 @@ const buttonSubmit = document.getElementById('buttonSubmit');
 
 
 
-function mousemove('mousemove', e) {
+function mousemove(rect) {
   /*TODO: Out of bounds mouse movements should stop current stroke*/
-
-  if (isDrawing === true && e.button === 0) {
-    drawLine(context, x, y, e.clientX - rect.left, e.clientY - rect.top);
-    x = e.clientX - rect.left;
-    y = e.clientY - rect.top;
-    grad = drawing.gradient(drawing.xArray.length-1, drawing.yArray.length-1, x, y);
-    
-    /*
-    smallestX = smallestX > x ? x : smallestX;
-    smallestY = smallestY > y ? y : smallestY;
-    */
-    drawing.push(x, y, Date.now() - timerStart, grad);
+  return e => {
+    if (isDrawing === true && e.button === 0) {
+      canvas.drawLine(x, y, e.clientX - rect.left, e.clientY - rect.top);
+      x = e.clientX - rect.left;
+      y = e.clientY - rect.top;
+      grad = drawing.gradient(drawing.xArray.length-1, drawing.yArray.length-1, x, y);
+      
+      /*
+      smallestX = smallestX > x ? x : smallestX;
+      smallestY = smallestY > y ? y : smallestY;
+      */
+      drawing.push(x, y, Date.now() - timerStart, grad);
+    }
   }
-});
+};
 
 
 /* Stop drawing */
-function mouseup('mouseup', e) {
-  
-  if (isDrawing === true && e.button === 0) {
+function mouseup(rect) {
+  return e => {
+    if (isDrawing === true && e.button === 0) {
 
-    drawLine(context, x, y, e.clientX - rect.left, e.clientY - rect.top);
-    
-    isDrawing = false;
+        canvas.drawLine(x, y, e.clientX - rect.left, e.clientY - rect.top);
+        
+        isDrawing = false;
+    }
   }
-});
+};
 
 /*  */
-function clearEventListener('click', drawingObj, canvas) {
-  drawingObj.clear(canvas);
-});
+function clearEventListener(context) {
+  return () => drawing.clear(context);
+};
 
 
 /* Button for submitting draw data */
