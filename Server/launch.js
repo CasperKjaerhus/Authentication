@@ -36,8 +36,7 @@ server.addResource(ServerResource.Servable("../Website/index.html", "/"));
 server.addResource(ServerResource.Servable("../Website/Scripts/canvas.js", "/Scripts/canvas.js"));
 server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style/index.css"));
 
-
-
+server.start(8000);
 
 function readRequestBody(req){
   return new Promise((resolve, reject) => {
