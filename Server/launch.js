@@ -22,10 +22,9 @@ server.addResource(new ServerResource("POST", "/submit/", (req, res) => {
 server.addResource(new ServerResource("POST", "/createaccount/", (req, res) => {
   readRequestBody(req).then((val) => {
     const body = JSON.parse(val);
-    
     Database.createUser(body.username);
 
-    for(let drawing in body.drawings){
+    for(let drawing of body.drawings){
       DataHandler.addEntry(drawing, body.username);
     }
   })
@@ -36,7 +35,7 @@ server.addResource(ServerResource.Servable("../Website/index.html", "/"));
 server.addResource(ServerResource.Servable("../Website/Scripts/canvas.js", "/Scripts/canvas.js"));
 server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style/index.css"));
 
-server.start(8000);
+server.start();
 
 function readRequestBody(req){
   return new Promise((resolve, reject) => {

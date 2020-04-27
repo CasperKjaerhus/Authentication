@@ -50,7 +50,7 @@ exports.Database = class {
 function CreateUserPath(username){
   try {
     fs.mkdirSync(`./data/${username}`);
-    fs.writeFileSync(`./data/${username}/drawing`, "");
+    fs.writeFileSync(`./data/${username}/drawings`, "");
     fs.writeFileSync(`./data/${username}/NNData`, "");
   } catch(e){
     console.log(e);
