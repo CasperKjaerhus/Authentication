@@ -28,8 +28,6 @@ server.addResource(new ServerResource("POST", "/createaccount/", (req, res) => {
     for(let drawing in body.drawings){
       DataHandler.addEntry(drawing, body.username);
     }
-    
-    
   })
 }));
 
