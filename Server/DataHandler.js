@@ -1,39 +1,25 @@
 const fs = require("fs");
 const readline = require("readline");
-
+const Database = require("./Database.js").Database
 exports.DataHandler = class {
   constructor () {}
 
     /*Adds a data entry into fileLocation*/
   static async addEntry(entry, username) {
-    let data = `${entry}\n`;
+    let data = `${JSONToData(entry)}\n`;
     let fileLocation = `./data/${username}/drawings.txt`;
 
-    UserPathCheck(`./data/${username}`);
-
-    fs.appendFile(fileLocation, data, (err) => {
-      console.log(`Error: ${err}`);
-    });
-  }
-
-  static JSONToData(dataJSONString) {
-      
-    const dataObject = JSON.parse(dataJSONString);
-    let dataString = "";
-
-    for (let i = 0; i < dataObject.xArray.length; i++) {
-      dataString += `${dataObject.xArray[i]} ${dataObject.yArray[i]} ${dataObject.timeStamps[i]} ${dataObject.gradArray[i]}`; /* What actually goes into gradArray? What is the input?*/
-
-      if (i <= dataObject.xArray.length-1) {
-        dataString += " "; /*Adds a whitespace between*/
-      }
+    if(Database.DoesUserExist(username)){
+      fs.appendFile(fileLocation, data, (err) => {
+        console.log(err);
+      });
+    } else {
+      console.log(`Error: ${username} does not exist!`);
     }
 
-    return dataString;
   }
 
   static async prepareNNData(username, coloumns){
-    UserPathCheck(`./data/${username}`);
     let rows;
     
     /*receives the amount of rows/lines and uses this alongside the amount of coloums to write the start of the NNData file*/
@@ -65,24 +51,18 @@ exports.DataHandler = class {
   }
 }
 
-/*checks if a folder with the users username exists*/
-function UserPathCheck(folderLocation){
-  if(fs.existsSync(folderLocation) === false) {
-    console.log("User folder does not exist")
-    fs.mkdirSync(folderLocation);
-    console.log("User folder created");
+function JSONToData(dataObject) {   
+  let dataString = "";
 
-    Userfilecheck(folderLocation, "drawings.txt");
-    Userfilecheck(folderLocation, "NNData.txt");
+  for (let i = 0; i < dataObject.xArray.length; i++) {
+    dataString += `${dataObject.xArray[i]} ${dataObject.yArray[i]} ${dataObject.timeStamps[i]} ${dataObject.gradArray[i]}`; /* What actually goes into gradArray? What is the input?*/
+
+    if (i <= dataObject.xArray.length-1) {
+      dataString += " "; /*Adds a whitespace between*/
+    }
   }
-  
-}
-function Userfilecheck(folderLocation, filename){
-  if(fs.existsSync(`${folderLocation}/${filename}`) === false) {
-    console.log(`${filename} does not exist`)
-    fs.writeFileSync(`${folderLocation}/${filename}`, "");
-    console.log(`${filename} created`);
-  }
+
+  return dataString;
 }
 
 
