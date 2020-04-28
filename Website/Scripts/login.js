@@ -1,18 +1,25 @@
 'use strict';
 
-const buttonSubmit = document.getElementById('loginButton');
-const formElem = document.getElementById('loginForm');
+import Canvas from './canvas_module.js';
+
+const formElem        = document.getElementById('loginForm');
+const canvasElem      = document.getElementById('drawCanvas');
+const clearElem       = document.getElementById('buttonClear');
+const submitElem      = document.getElementById('buttonSubmit');
+const canvas          = new Canvas(canvasElem, clearElem);
+
+let drawing = canvas.currDrawing;
 
 /* Button for submitting draw data */
-buttonSubmit.addEventListener('click', e =>  {
- 
+submitElem.addEventListener('click', e =>  {
   drawing.exportStuff();
 
   const url = "/submit/";
-  let data = new FormData(loginForm);
+
+  let data = new FormData(formElem);
   data.append(JSON.stringify(drawing));
 
-  drawing.clear();
+  drawing.clear(canvas);
 
   const parameters = {
     method: "POST",
