@@ -32,7 +32,11 @@ server.addResource(new ServerResource("POST", "/createaccount/", (req, res) => {
 
 
 server.addResource(ServerResource.Servable("../Website/index.html", "/"));
-server.addResource(ServerResource.Servable("../Website/Scripts/canvas.js", "/Scripts/canvas.js"));
+server.addResource(ServerResource.Servable("../Website/login.html", "/login"));
+server.addResource(ServerResource.Servable("../Website/account.html", "/account"));
+server.addResource(ServerResource.Servable("../Website/Scripts/canvas_module.js", "/Scripts/canvas_module.js"));
+server.addResource(ServerResource.Servable("../Website/Scripts/login.js", "/Scripts/login.js"));
+server.addResource(ServerResource.Servable("../Website/Scripts/account.js", "/Scripts/account.js"));
 server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style/index.css"));
 
 server.start();

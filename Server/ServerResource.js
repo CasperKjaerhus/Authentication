@@ -7,9 +7,14 @@ exports.ServerResource = class {
     this.callback = callback;
   }
 
-  static Servable(filelocation, url) {
+  static Servable(filelocation="", url) {
     return new this("GET", url, (req, res) => {
-      res.writeHead(200);
+      let headers = {};
+      if(filelocation.endsWith(".js") === true){
+        headers["Content-Type"] = 'application/javascript';
+      }
+
+      res.writeHead(200, headers);
       res.write(fs.readFileSync(filelocation));
     });
   }

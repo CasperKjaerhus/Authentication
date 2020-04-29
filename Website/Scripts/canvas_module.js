@@ -7,9 +7,8 @@ let x = 0;
 let y = 0;
 let smallestX = 0;
 let smallestY = 0;
-let drawing = undefined;
 
-class Drawing {
+export class Drawing {
   constructor(x, y, timeStamp, grad) {
     this.startedDrawing = false;
     this.xArray = [x];
@@ -51,10 +50,11 @@ class Drawing {
   
     let groups = 100;
     let subArraySize = Math.ceil(this.xArray.length/groups);
-
+    let done = false;
+    
     for (let property in this) { 
       if (property !== 'startedDrawing') {        
-         for (let i = 0; i < groups; i++) {
+         for (let i = 0; i < groups && done === false; i++) {
           
           // If catches event where less than 
           if (i + subArraySize < groups ) {
@@ -68,6 +68,7 @@ class Drawing {
             const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / ((this[property].length - 1)  - i);
 
             this[property].splice(i, (this[property].length - 1) - i, averageCalc);
+            done = true;
           }
         }
       }
@@ -78,11 +79,11 @@ class Drawing {
 export default class Canvas {
   constructor(DOMelem, clearElem) {
     this.element = DOMelem;
-    this.currDrawing = new Drawing();
+    this.currDrawing = null;
     this.context = this.element.getContext('2d');
     this.rect    = this.element.getBoundingClientRect();  // The x and y offset of the canvas from the edge of the page
     this.clearButton = clearElem;
-    this.element.addEventListener('mousedown', mousedown(this.rect, this.currDrawing));
+    this.element.addEventListener('mousedown', mousedown(this.rect, this));
     this.element.addEventListener('mousemove', mousemove(this.rect, this));
     window.addEventListener('mouseup', mouseup(this.rect, this));
     this.clearButton.addEventListener('click', clearEventListener(this));
@@ -100,22 +101,22 @@ export default class Canvas {
 }
 
 
-function mousedown(rect, drawing) {
+function mousedown(rect, canvas) {
   return e => {
     if (e.button === 0) {  
 
       x = e.clientX - rect.left;
       y = e.clientY - rect.top;
 
-      if (drawing.startedDrawing === false) {
+      if (canvas.currDrawing === null || canvas.currDrawing.startedDrawing === false) {
         e.preventDefault();
         
         timerStart = Date.now();
         grad = 0;
         
         /* Initialize main object */
-        drawing.push(x, y, Date.now() - timerStart, grad);
-        drawing.startedDrawing = true;
+        canvas.currDrawing = new Drawing(x, y, Date.now() - timerStart, grad);
+        canvas.currDrawing.startedDrawing = true;
       }
       isDrawing = true;
     }
