@@ -1,85 +1,74 @@
 const fs = require("fs");
 const readline = require("readline");
-
+const Database = require("./Database.js").Database
 exports.DataHandler = class {
-    constructor (fileLocation, coloumns=1200) {
-        this.coloumns = coloumns;
-        this.fileLocation = fileLocation;
-        this.rows = null;
-        PathCheck(fileLocation, coloumns);
+  constructor () {}
+
+    /*Adds a data entry into fileLocation*/
+  static async addEntry(entry, username) {
+    let data = `${JSONToData(entry)}\n`;
+    let fileLocation = `./data/${username}/drawings`;
+
+    if(Database.DoesUserExist(username)){
+      fs.appendFile(fileLocation, data, (err) => {
+        console.log(err);
+      });
+    } else {
+      console.log(`Error: ${username} does not exist!`);
     }
 
-    /* Function to initialise class, this has to be async since we need to wait for LoadRows to finish.*/
-    async init() {
-        await LoadRows(this.fileLocation).then((result) => {
-          this.rows = result;
-        });   
-    }
+  }
 
-    /*Adds a data entry into ./submit/data in specified format*/
-    addEntry(entry) {
-      /*FIX: whitespace in data gets deleted between row and coloumn number when rows extends to new digit*/
-      const writeStream = fs.createWriteStream(this.fileLocation, {start: 0, flags: "r+"});
+  static async prepareNNData(username, coloumns){
+    let rows;
+    
+    /*receives the amount of rows/lines and uses this alongside the amount of coloums to write the start of the NNData file*/
+    await CountRows(`./data/${username}/drawings`).then((val) => rows = val);
+    console.log("got here");
 
-      this.rows++;
-      
-      if (this.rows > 1) {
-        fs.appendFileSync(this.fileLocation, `\n` + `${entry}`);
-      }
-      else {
-        fs.appendFileSync(this.fileLocation, `${entry}`);
-      }
-      
-      console.log(`ROWS ADDENTRY: ${this.rows}`);
-      //When data is appended to the file, the writeStream adds +1 to the row counter, a space afterwards and the amount of coloumns. This all happens on the first line
-      writeStream.write(`${this.rows.toString()} ${this.coloumns.toString()}\n`, (err) => { 
-        if (err) {
-          console.log(err);
-        }
-        writeStream.end();
+    fs.appendFile(`./data/${username}/NNData`, `${rows} ${coloumns}\n`, (err) => console.log(err));
+    
+    
+    const prom = new Promise((resolve, reject) => {
+
+      const readlineInterface = readline.createInterface({
+        input: fs.createReadStream(`./data/${username}/drawings`)
+      });
+      /*Line event fires when a line is read from the file, and is used to copy to another file*/
+      readlineInterface.on("line", (input) => {
+        fs.appendFile(`./data/${username}/NNData`, input+"\n", (err) => console.log(err))
       });
       
-    }
+      /*Close event fires upon end of file and is used to delete the last new line and resolves the promise*/
+      readlineInterface.on("close", () => {
+        fs.stat(`./data/${username}/NNData`, (err, stats) => {
+          fs.truncate(`./data/${username}/NNData`, stats.size - 1, (err) => {});
+        })
+        resolve();
+      });
+    })
+    await prom.then(() => console.log(`Done writing from [./data/${username}/drawings] to [./data/${username}/NNData]`));
+  }
 }
 
-exports.JSONToData = function(dataJSONString) {
-
-  const dataObject = JSON.parse(dataJSONString);
+function JSONToData(dataObject) {   
   let dataString = "";
+  console.log(`Wat: ${dataObject}`);
   for (let i = 0; i < dataObject.xArray.length; i++) {
-    /*FIX: SPACING AT END/START*/
     dataString += `${dataObject.xArray[i]} ${dataObject.yArray[i]} ${dataObject.timeStamps[i]} ${dataObject.gradArray[i]}`; /* What actually goes into gradArray? What is the input?*/
+
     if (i <= dataObject.xArray.length-1) {
       dataString += " "; /*Adds a whitespace between*/
     }
   }
+
   return dataString;
 }
 
 
-/*Checks if the folder "submit" exists, if not, creates it, and runs FileLocCheck*/
-function PathCheck(fileLocation, coloumns) { 
-  if (fs.existsSync('./submit') === false) {
-    fs.mkdirSync('./submit');
-  }
-  FileLocCheck(fileLocation, coloumns)
-}   
 
-
-/* Checks if the file exists */
-function FileLocCheck(fileLocation, coloumns) {
-  if (fs.existsSync(fileLocation)) {
-    console.log("FILE LOCATED");
-  }
-  else {
-    /*Creates the file if it does not exist*/
-    console.log("FILE NOT LOCATED, CREATING FILE");
-    fs.writeFileSync(fileLocation, `0 ${coloumns}\n`);
-  }
-}
-
-
-async function LoadRows(fileLocation) {
+/*The amount of rows/lines in the document is counted and then the number is returned*/
+async function CountRows(fileLocation) {
   let returnData = 0; 
   const prom = new Promise((resolve, reject) => {
 
@@ -89,20 +78,17 @@ async function LoadRows(fileLocation) {
     });
 
     readlineInterface.on("line", (input) => {
-        if (linenum === 0) {
-          linenum++;
-          let FirstSpace = input.indexOf(' ');
-          resolve(input.slice(0,FirstSpace));
-        }
+      console.log(linenum);
+      linenum++;
     });
     
-    readlineInterface.on("end", () => {
-      readlineInterface.close();
+    readlineInterface.on("close", () => {
+      console.log("test");
+      resolve(linenum);
     }); 
   });
 
   await prom.then((val) => {
-    console.log(`SlicedInput Val: ${val}`);
     returnData = val;
   }).catch((err) => {
     console.error(err);
