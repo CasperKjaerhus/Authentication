@@ -24,7 +24,6 @@ exports.DataHandler = class {
     
     /*receives the amount of rows/lines and uses this alongside the amount of coloums to write the start of the NNData file*/
     await CountRows(`./data/${username}/drawings`).then((val) => rows = val);
-    console.log("got here");
 
     fs.appendFile(`./data/${username}/NNData`, `${rows} ${coloumns}\n`, (err) => console.log(err));
     
@@ -53,7 +52,6 @@ exports.DataHandler = class {
 
 function JSONToData(dataObject) {   
   let dataString = "";
-  console.log(`Wat: ${dataObject}`);
   for (let i = 0; i < dataObject.xArray.length; i++) {
     dataString += `${dataObject.xArray[i]} ${dataObject.yArray[i]} ${dataObject.timeStamps[i]} ${dataObject.gradArray[i]}`; /* What actually goes into gradArray? What is the input?*/
 
@@ -83,7 +81,6 @@ async function CountRows(fileLocation) {
     });
     
     readlineInterface.on("close", () => {
-      console.log("test");
       resolve(linenum);
     }); 
   });
