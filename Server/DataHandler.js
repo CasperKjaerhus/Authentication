@@ -8,10 +8,11 @@ exports.DataHandler = class {
   static async addEntry(entry, username) {
     let data = `${JSONToData(entry)}\n`;
     let fileLocation = `./data/${username}/drawings`;
-
     if(Database.DoesUserExist(username)){
       fs.appendFile(fileLocation, data, (err) => {
-        console.log(err);
+        if(err){
+          console.log(err);
+        }
       });
     } else {
       console.log(`Error: ${username} does not exist!`);

@@ -4,6 +4,7 @@ const DataHandler = require("./DataHandler.js").DataHandler;
 const Database = require("./Database.js").Database;
 const http = require("http");
 const fs = require("fs");
+const {testServer} = require("./Test.js");
 
 const server = new Server(8000);
 
@@ -27,7 +28,7 @@ server.addResource(new ServerResource("POST", "/createaccount/", (req, res) => {
     for(let drawing of body.drawings){
       DataHandler.addEntry(drawing, body.username);
     }
-  })
+  });
 }));
 
 
@@ -36,6 +37,8 @@ server.addResource(ServerResource.Servable("../Website/Scripts/canvas.js", "/Scr
 server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style/index.css"));
 
 server.start();
+
+//testServer(); // Enable this for testing! :)
 
 function readRequestBody(req){
   return new Promise((resolve, reject) => {
