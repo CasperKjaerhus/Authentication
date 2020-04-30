@@ -28,7 +28,7 @@ server.addResource(new ServerResource("POST", "/createaccount/", (req, res) => {
     for(let drawing of body.drawings){
       DataHandler.addEntry(drawing, body.username);
     }
-  })
+  });
 }));
 
 
@@ -38,7 +38,7 @@ server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style
 
 server.start();
 
-testServer();
+//testServer(); // Enable this for testing! :)
 
 function readRequestBody(req){
   return new Promise((resolve, reject) => {
