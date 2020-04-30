@@ -30,10 +30,23 @@ server.addResource(new ServerResource("POST", "/createaccount/", (req, res) => {
       for(let drawing of body.drawings){
         DataHandler.addEntry(drawing, body.username);
       }
+      res.end();
     }else {
       res.writeHead(403)
-      res.write("taken");
+      res.write("taken", () => res.end()); 
     }
+  });
+}));
+
+server.addResource(new ServerResource("POST", "/checkusername/", (req, res) => {
+  readRequestBody(req).then((val) => {
+    res.writeHead(200);
+    if(Database.DoesUserExist(val) === true){
+      res.write("taken", () => res.end());
+    }else {
+      res.write("not taken", () => res.end());
+    }
+    
   });
 }));
 
@@ -44,7 +57,7 @@ server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style
 
 server.start();
 
-//testServer(); // Enable this for testing! :)
+testServer(); // Enable this for testing! :)
 
 function readRequestBody(req){
   return new Promise((resolve, reject) => {

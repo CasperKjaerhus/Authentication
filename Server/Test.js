@@ -1,5 +1,6 @@
 const http = require("http");
 const fs = require("fs");
+const database = require("./Database.js").Database;
 
 exports.testServer = function(){
   let randomDrawings = [];
@@ -7,36 +8,61 @@ exports.testServer = function(){
     randomDrawings.push(randomDrawingData());
   }
   /*Testing if createaccount works and creates the appropriate data*/
+  ServerResourceTest("/checkusername/", "POST", "Test", (response, data) => {
+    if(response.statusCode !== 200){
+      throw `CHECKUSERNAME RESPONDED WITH ${response.statusCode}, SHOULD'VE RESPONDED WITH 200`;
+    }
+    if(data !== "not taken"){
+      throw `CHECKUSERNAME DID NOT RESPOND WITH "taken" TO USERNAME "Test" RESPONDED WITH: ${data}`;
+    }
+  });
+
   ServerResourceTest("/createaccount/", "POST", JSON.stringify({username: "Test", drawings: randomDrawings}), (response, data) => {
     setTimeout(() => {
-    if(response.statusCode !== 200){
-      throw `CREATEACCOUNT RESPONDED WITH ${response.statusCode}, SHOULD'VE RESPONDED WITH 200`;
-    }
-    if(fs.existsSync("./data/Test") === false){
-      throw `CREATEACCOUNT DIDN'T CREATE ./data/Test folder`
-    }
-    if(fs.existsSync("./data/Test/drawings") === false){
-      throw `CREATEACCOUNT DIDN'T CREATE ./data/Test/drawings file`
-    }
-    if(fs.existsSync("./data/Test/NNData") === false){
-      throw `CREATEACCOUNT DIDN'T CREATE ./data/Test/drawings file`
-    }
-
-    const drawingDataRecieved = fs.readFileSync("./data/Test/drawings").toString();
-    const drawingDataSent = formatData(randomDrawings);
-
-    const sentStrings = drawingDataSent.split("\n");
-    const recievedStrings = drawingDataRecieved.split("\n");
-    
-    for(let string of sentStrings) {
-      if(recievedStrings.find((value) => value === string) === undefined){
-        throw `CREATEACCOUNT DIDN'T ADD DRAWING DATA PROPERLY: EXPECTED ${sentStrings} GOT: ${recievedStrings} error: ${string}`;
+      //#region createaccount
+      if(response.statusCode !== 200){
+        throw `CREATEACCOUNT RESPONDED WITH ${response.statusCode}, SHOULD'VE RESPONDED WITH 200`;
       }
-    }
+      if(fs.existsSync("./data/Test") === false){
+        throw `CREATEACCOUNT DIDN'T CREATE ./data/Test folder`
+      }
+      if(fs.existsSync("./data/Test/drawings") === false){
+        throw `CREATEACCOUNT DIDN'T CREATE ./data/Test/drawings file`
+      }
+      if(fs.existsSync("./data/Test/NNData") === false){
+        throw `CREATEACCOUNT DIDN'T CREATE ./data/Test/drawings file`
+      }
+
+      const drawingDataRecieved = fs.readFileSync("./data/Test/drawings").toString();
+      const drawingDataSent = formatData(randomDrawings);
+
+      const sentStrings = drawingDataSent.split("\n");
+      const recievedStrings = drawingDataRecieved.split("\n");
+
+      for(let string of sentStrings) {
+        if(recievedStrings.find((value) => value === string) === undefined){
+          throw `CREATEACCOUNT DIDN'T ADD DRAWING DATA PROPERLY: EXPECTED ${sentStrings} GOT: ${recievedStrings} error: ${string}`;
+        }
+      }
       console.log("SUCCESS: Createaccount test found 0 errors");
+      //#endregion createaccount
+      
+      ServerResourceTest("/checkusername/", "POST", "Test", (response, data) => {
+      if(response.statusCode !== 200){
+        throw `CHECKUSERNAME RESPONDED WITH ${response.statusCode}, SHOULD'VE RESPONDED WITH 200`;
+      }
+      if(data !== "taken"){
+        throw `CHECKUSERNAME DID NOT RESPOND WITH "taken" TO USERNAME "Test" RESPONDED WITH: ${data}`;
+      }
+
+      console.log("SUCCESS: checkusername test found 0 errors");
+      });
+      
+
+      database.deleteUser("Test");
     }, 2500);
     
-
+    
     
   });
 }
