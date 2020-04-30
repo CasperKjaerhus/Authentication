@@ -45,35 +45,7 @@ export class Drawing {
     }
   }
 
-  // Shrinks the object for export to server to desired inputsize
-  exportStuff() {
-  
-    let groups = 100;
-    let subArraySize = Math.ceil(this.xArray.length/groups);
-    let done = false;
-    
-    for (let property in this) { 
-      if (property !== 'startedDrawing') {        
-         for (let i = 0; i < groups && done === false; i++) {
-          
-          // If catches event where less than 
-          if (i + subArraySize < groups ) {
-            const averageSubArray = this[property].slice(i, i + subArraySize);
-            const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / subArraySize;
 
-            this[property].splice(i, subArraySize, averageCalc);
-          }
-          else {
-            const averageSubArray = this[property].slice(i, this[property].length - 1);
-            const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / ((this[property].length - 1)  - i);
-
-            this[property].splice(i, (this[property].length - 1) - i, averageCalc);
-            done = true;
-          }
-        }
-      }
-    }
-  }
 }
 
 export default class Canvas {

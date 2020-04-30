@@ -16,12 +16,11 @@ counterElem.innerHTML=`${counter}/${done}`;
 
 //ToDo: Handle succes and fail cases for response
 buttonNext.addEventListener('click', e => {
-  let drawing = canvas.currDrawing;                                                                             //Nødvendigt her eller udenfor eventlistener?? Hvad er pænest?
+  let drawing = canvas.currDrawing;
   if (counter < done) {
 
     //Ready data for export and copy into data array
-    drawing.exportStuff();
-    data.push(JSON.parse(JSON.stringify(drawing)));
+    exportStuff(drawing);
 
     //Increment counter and html-counter. Also clear canvas and enable next drawing
     counter++;
@@ -31,8 +30,8 @@ buttonNext.addEventListener('click', e => {
 
   } else if (counter === done) {
     //Final packing of drawing data into json object
-    drawing.exportStuff();
-    data.push(JSON.parse(JSON.stringify(drawing)));
+    exportStuff(drawing);
+
     let drawingData = JSON.stringify({username: validate.value, drawings: data});
 
     //Clear canvas
@@ -97,4 +96,36 @@ validate.addEventListener('change', e => {
 
 });
 
+
+// Shrinks the object for export to server to desired inputsize
+function exportStuff(drawing){
+
+  let groups = 100;
+  let subArraySize = Math.ceil(drawing.xArray.length/groups);
+  let done = false;
+  
+  for (let property in drawing) { 
+    if (property !== 'startedDrawing') {        
+        for (let i = 0; i < groups && done === false; i++) {
+        
+        // If catches event where less than 
+        if (i + subArraySize < groups ) {
+          const averageSubArray = drawing[property].slice(i, i + subArraySize);
+          const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / subArraySize;
+
+          drawing[property].splice(i, subArraySize, averageCalc);
+        }
+        else {
+          const averageSubArray = drawing[property].slice(i, drawing[property].length - 1);
+          const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / ((drawing[property].length - 1)  - i);
+
+          drawing[property].splice(i, (drawing[property].length - 1) - i, averageCalc);
+          done = true;
+        }
+      }
+    }
+  }
+
+  data.push(JSON.parse(JSON.stringify(drawing)));
+}
 
