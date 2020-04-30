@@ -1,14 +1,11 @@
 const http = require("http");
 const fs = require("fs");
 
-
-
 exports.testServer = function(){
   let randomDrawings = [];
   for(let i=0; i < 10; i++){
     randomDrawings.push(randomDrawingData());
   }
-  
   /*Testing if createaccount works and creates the appropriate data*/
   ServerResourceTest("/createaccount/", "POST", JSON.stringify({username: "Test", drawings: randomDrawings}), (response, data) => {
     setTimeout(() => {
@@ -18,30 +15,28 @@ exports.testServer = function(){
     if(fs.existsSync("./data/Test") === false){
       throw `CREATEACCOUNT DIDN'T CREATE ./data/Test folder`
     }
-
     if(fs.existsSync("./data/Test/drawings") === false){
       throw `CREATEACCOUNT DIDN'T CREATE ./data/Test/drawings file`
     }
-    
     if(fs.existsSync("./data/Test/NNData") === false){
       throw `CREATEACCOUNT DIDN'T CREATE ./data/Test/drawings file`
     }
-      const drawingDataRecieved = fs.readFileSync("./data/Test/drawings").toString();
-      const drawingDataSent = formatData(randomDrawings);
+    const drawingDataRecieved = fs.readFileSync("./data/Test/drawings").toString();
+    const drawingDataSent = formatData(randomDrawings);
 
-      const sentStrings = drawingDataSent.split("\n");
-      const recievedStrings = drawingDataRecieved.split("\n");
+    const sentStrings = drawingDataSent.split("\n");
+    const recievedStrings = drawingDataRecieved.split("\n");
 
-      for(let string of sentStrings) {
-        if(recievedStrings.find((value) => value === string) === undefined){
-          throw `CREATEACCOUNT DIDN'T ADD DRAWING DATA PROPERLY: EXPECTED ${sentStrings} GOT: ${recievedStrings} error: ${string}`;
-        }
+    for(let string of sentStrings) {
+      if(recievedStrings.find((value) => value === string) === undefined){
+        throw `CREATEACCOUNT DIDN'T ADD DRAWING DATA PROPERLY: EXPECTED ${sentStrings} GOT: ${recievedStrings} error: ${string}`;
       }
+    }
       console.log("SUCCESS: Createaccount test found 0 errors");
     }, 2500);
-
     
 
+    
   });
 }
 
