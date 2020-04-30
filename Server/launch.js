@@ -57,7 +57,7 @@ server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style
 
 server.start();
 
-testServer(); // Enable this for testing! :)
+//testServer(); // Enable this for testing! :)
 
 function readRequestBody(req){
   return new Promise((resolve, reject) => {
