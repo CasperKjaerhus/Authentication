@@ -10,7 +10,7 @@ exports.ServerResource = class {
   static Servable(filelocation, url) {
     return new this("GET", url, (req, res) => {
       res.writeHead(200);
-      res.write(fs.readFileSync(filelocation));
+      res.write(fs.readFileSync(filelocation), () => res.end());
     });
   }
 }

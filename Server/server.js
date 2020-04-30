@@ -25,8 +25,6 @@ exports.Server = class {
             
           /*Callback determines what resource funktion is used (if a resource exists under launch.js the function of said resource is used)*/
           resource.callback(req, res, resource);
-
-          res.end();
         }
       }     
       

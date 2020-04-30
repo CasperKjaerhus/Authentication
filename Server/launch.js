@@ -23,11 +23,30 @@ server.addResource(new ServerResource("POST", "/submit/", (req, res) => {
 server.addResource(new ServerResource("POST", "/createaccount/", (req, res) => {
   readRequestBody(req).then((val) => {
     const body = JSON.parse(val);
-    Database.createUser(body.username);
+    if(Database.DoesUserExist(body.username) === false){
+      res.writeHead(200);
+      Database.createUser(body.username);
 
-    for(let drawing of body.drawings){
-      DataHandler.addEntry(drawing, body.username);
+      for(let drawing of body.drawings){
+        DataHandler.addEntry(drawing, body.username);
+      }
+      res.end();
+    }else {
+      res.writeHead(403)
+      res.write("taken", () => res.end()); 
     }
+  });
+}));
+
+server.addResource(new ServerResource("POST", "/checkusername/", (req, res) => {
+  readRequestBody(req).then((val) => {
+    res.writeHead(200);
+    if(Database.DoesUserExist(val) === true){
+      res.write("taken", () => res.end());
+    }else {
+      res.write("not taken", () => res.end());
+    }
+    
   });
 }));
 
