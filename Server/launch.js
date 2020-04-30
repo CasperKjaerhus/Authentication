@@ -8,18 +8,7 @@ const {testServer} = require("./Test.js");
 
 const server = new Server(8000);
 
-server.addResource(new ServerResource("POST", "/submit/", (req, res) => {
-
-  res.writeHead(200);
-
-  readRequestBody(req).then((val) => {
-    console.log("Message recieved: " + val);
-    const dataString = JSONToData(val);
-    DataHandler.addEntry(dataString, "test");
-  });
-
-}));
-
+/*Resource to create an account from the client */
 server.addResource(new ServerResource("POST", "/createaccount/", (req, res) => {
   readRequestBody(req).then((val) => {
     const body = JSON.parse(val);
@@ -38,6 +27,7 @@ server.addResource(new ServerResource("POST", "/createaccount/", (req, res) => {
   });
 }));
 
+/*Resource to check username availability */
 server.addResource(new ServerResource("POST", "/checkusername/", (req, res) => {
   readRequestBody(req).then((val) => {
     res.writeHead(200);
@@ -49,7 +39,6 @@ server.addResource(new ServerResource("POST", "/checkusername/", (req, res) => {
     
   });
 }));
-
 
 server.addResource(ServerResource.Servable("../Website/index.html", "/"));
 server.addResource(ServerResource.Servable("../Website/Scripts/canvas.js", "/Scripts/canvas.js"));

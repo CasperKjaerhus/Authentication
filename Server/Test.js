@@ -46,7 +46,7 @@ exports.testServer = function(){
       }
       console.log("SUCCESS: Createaccount test found 0 errors");
       //#endregion createaccount
-      
+
       ServerResourceTest("/checkusername/", "POST", "Test", (response, data) => {
       if(response.statusCode !== 200){
         throw `CHECKUSERNAME RESPONDED WITH ${response.statusCode}, SHOULD'VE RESPONDED WITH 200`;
@@ -58,7 +58,7 @@ exports.testServer = function(){
       console.log("SUCCESS: checkusername test found 0 errors");
       });
       
-
+      /*Removes the folder that got created during testing*/
       database.deleteUser("Test");
     }, 2500);
     
