@@ -48,6 +48,7 @@ server.start();
 
 //testServer(); // Enable this for testing! :)
 
+/* Function that resolves to clientrequest body */
 function readRequestBody(req){
   return new Promise((resolve, reject) => {
     let reqBody = '';
@@ -58,5 +59,4 @@ function readRequestBody(req){
       resolve(reqBody);
     });
   })
-
 }
