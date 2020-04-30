@@ -40,6 +40,7 @@ server.addResource(new ServerResource("POST", "/checkusername/", (req, res) => {
   });
 }));
 
+/*Adding pages and scripts that the client can load*/
 server.addResource(ServerResource.Servable("../Website/index.html", "/"));
 server.addResource(ServerResource.Servable("../Website/Scripts/canvas.js", "/Scripts/canvas.js"));
 server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style/index.css"));
