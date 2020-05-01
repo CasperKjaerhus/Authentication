@@ -37,6 +37,7 @@ server.addResource(ServerResource.Servable("../Website/account.html", "/account"
 server.addResource(ServerResource.Servable("../Website/Scripts/canvas_module.js", "/Scripts/canvas_module.js"));
 server.addResource(ServerResource.Servable("../Website/Scripts/login.js", "/Scripts/login.js"));
 server.addResource(ServerResource.Servable("../Website/Scripts/account.js", "/Scripts/account.js"));
+server.addResource(ServerResource.Servable("../Website/Scripts/utility.js", "/Scripts/utility.js"));
 server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style/index.css"));
 
 server.start();

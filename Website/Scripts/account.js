@@ -1,5 +1,6 @@
 'use strict';
-import {default as Canvas, Drawing, smallestX as minX, smallestY as minY} from './canvas_module.js';
+import {default as Canvas, Drawing} from './canvas_module.js';
+import {default as exportStuff} from './utility.js';
 
 const validate        = document.getElementById('validate');
 const buttonNext      = document.getElementById('nextDrawing');
@@ -21,6 +22,7 @@ buttonNext.addEventListener('click', e => {
 
     //Ready data for export and copy into data array
     exportStuff(drawing);
+    data.push(JSON.parse(JSON.stringify(drawing)));
 
     //Increment counter and html-counter. Also clear canvas and enable next drawing
     counter++;
@@ -31,9 +33,12 @@ buttonNext.addEventListener('click', e => {
   } else if (counter === done) {
     //Final packing of drawing data into json object
     exportStuff(drawing);
+    data.push(JSON.parse(JSON.stringify(drawing)));
+
     let drawingData = JSON.stringify({username: validate.value, drawings: data});
 
     //Clear canvas
+    counter++;
     drawing.startedDrawing = false;
     drawing.clear(canvas);
 
@@ -93,61 +98,3 @@ validate.addEventListener('change', e => {
 
 
 });
-
-
-// Shrinks the object for export to server to desired inputsize
-function exportStuff(drawing){
-
-  const groups = 100;
-  let subArraySize = Math.ceil(drawing.xArray.length/groups);
-
-  drawing.xArray.forEach(x => x - minX);
-  drawing.yArray.forEach(y => y - minY);
-
-  //drawing[property].forEach(element => console.log(element, minX));
-
-  for (let property in drawing) { 
-
-    if (property !== 'startedDrawing') {
-
-      for (let i = 0; i < groups; i++) {
-      
-        // If catches event where less than
-        //if (i + subArraySize <= drawing[property].length) {
-        if (((i + subArraySize) <= drawing[property].length) && ((drawing[property].length - subArraySize) > groups)) {
-          const averageSubArray = drawing[property].slice(i, i + subArraySize);
-          const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / subArraySize;
-         
-          console.log(`if statement:  i = ${i} arrayLength = ${drawing[property].length} subArraySize = ${subArraySize}  averageSubArray = ${averageSubArray}`)
-
-          drawing[property].splice(i, subArraySize, averageCalc);
-        } /*else {
-          console.log(`Something went wrong. i = ${i}, drawing[porperty].length = ${drawing[property].length}, subArraySize = ${subArraySize}`);
-          console.log(`${((i + subArraySize) <= drawing[property].length)} && ${((drawing[property].length - (i + subArraySize)) > groups)}`);
-        }*/
-        
-        else if (groups % i !== 0) {
-
-          let subArraySize = drawing[property].length - i;
-
-          //den her kan noget næsten
-          subArraySize = subArraySize/2 >= 1 && (drawing[property].length - subArraySize) > groups ? subArraySize : 1;
-
-          const averageSubArray = drawing[property].slice(i, i + subArraySize);
-          const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / subArraySize;
-
-          console.log(`else statement:  i = ${i} arrayLength = ${drawing[property].length} subArraySize = ${subArraySize}  averageSubArray = ${averageSubArray}`)
-
-          drawing[property].splice(i, subArraySize, averageCalc);
-        }
-        
-      }
-    }
-  }
-  //drawing.xArray.forEach(x => x - minX);
-  //drawing.xArray.forEach(element => console.log(element, minX));
-
-  console.log(`done:  arrayLength = ${drawing.xArray.length}\n xArray: ${drawing.xArray[drawing.xArray.length-3]}\n${drawing.xArray[drawing.xArray.length-2]}\n${drawing.xArray[drawing.xArray.length-1]}\n`)
-  data.push(JSON.parse(JSON.stringify(drawing)));
-}
-
