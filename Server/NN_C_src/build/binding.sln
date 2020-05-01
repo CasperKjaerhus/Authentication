@@ -1,0 +1,60 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(Authentication)", "..\Users\Casper\Documents\GitHub\Authentication", "{5A38CE17-48AE-D73E-D442-DE2BEEC2F701}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(Casper)", "..\Users\Casper", "{827ADD78-FE46-BC55-75CE-933803BDEF24}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(Documents)", "..\Users\Casper\Documents", "{9CA2CE60-E968-C426-BAB7-05AA2BF8B658}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(GitHub)", "..\Users\Casper\Documents\GitHub", "{72B3C1E1-10A5-82FF-649A-1BBC2E169E15}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(NN_C_src)", "..\Users\Casper\Documents\GitHub\Authentication\Server\NN_C_src", "{DE0E9E7B-F888-31E1-EBD9-873EAC03A5BF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(Server)", "..\Users\Casper\Documents\GitHub\Authentication\Server", "{22B648C5-7007-7FD5-6DCC-596E22105F7A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(Users)", "..\Users", "{83FD2216-DE8C-3729-D4EA-3618B14F3F2D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(node-addon-api)", "..\Users\Casper\Documents\GitHub\Authentication\Server\NN_C_src\node_modules\node-addon-api", "{BC625C17-52FC-5FFA-3417-37FD4025425F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(node_modules)", "..\Users\Casper\Documents\GitHub\Authentication\Server\NN_C_src\node_modules", "{4FC7A1ED-7C6D-E22F-580B-802DCD887813}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "(src)", "..\Users\Casper\Documents\GitHub\Authentication\Server\NN_C_src\node_modules\node-addon-api\src", "{6C45AC72-7553-F59F-6FA9-1B27436C6501}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "neuralnetwork", "neuralnetwork.vcxproj", "{25827CF1-70E8-9568-409C-5C0192DE83C5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{85D9AE66-7872-6E2A-E896-A8E3A3DAF354} = {85D9AE66-7872-6E2A-E896-A8E3A3DAF354}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nothing", "..\node_modules\node-addon-api\src\nothing.vcxproj", "{85D9AE66-7872-6E2A-E896-A8E3A3DAF354}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{25827CF1-70E8-9568-409C-5C0192DE83C5}.Debug|x64.ActiveCfg = Debug|x64
+		{25827CF1-70E8-9568-409C-5C0192DE83C5}.Debug|x64.Build.0 = Debug|x64
+		{25827CF1-70E8-9568-409C-5C0192DE83C5}.Release|x64.ActiveCfg = Release|x64
+		{25827CF1-70E8-9568-409C-5C0192DE83C5}.Release|x64.Build.0 = Release|x64
+		{85D9AE66-7872-6E2A-E896-A8E3A3DAF354}.Debug|x64.ActiveCfg = Debug|x64
+		{85D9AE66-7872-6E2A-E896-A8E3A3DAF354}.Debug|x64.Build.0 = Debug|x64
+		{85D9AE66-7872-6E2A-E896-A8E3A3DAF354}.Release|x64.ActiveCfg = Release|x64
+		{85D9AE66-7872-6E2A-E896-A8E3A3DAF354}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{22B648C5-7007-7FD5-6DCC-596E22105F7A} = {5A38CE17-48AE-D73E-D442-DE2BEEC2F701}
+		{9CA2CE60-E968-C426-BAB7-05AA2BF8B658} = {827ADD78-FE46-BC55-75CE-933803BDEF24}
+		{72B3C1E1-10A5-82FF-649A-1BBC2E169E15} = {9CA2CE60-E968-C426-BAB7-05AA2BF8B658}
+		{5A38CE17-48AE-D73E-D442-DE2BEEC2F701} = {72B3C1E1-10A5-82FF-649A-1BBC2E169E15}
+		{4FC7A1ED-7C6D-E22F-580B-802DCD887813} = {DE0E9E7B-F888-31E1-EBD9-873EAC03A5BF}
+		{DE0E9E7B-F888-31E1-EBD9-873EAC03A5BF} = {22B648C5-7007-7FD5-6DCC-596E22105F7A}
+		{827ADD78-FE46-BC55-75CE-933803BDEF24} = {83FD2216-DE8C-3729-D4EA-3618B14F3F2D}
+		{6C45AC72-7553-F59F-6FA9-1B27436C6501} = {BC625C17-52FC-5FFA-3417-37FD4025425F}
+		{BC625C17-52FC-5FFA-3417-37FD4025425F} = {4FC7A1ED-7C6D-E22F-580B-802DCD887813}
+		{85D9AE66-7872-6E2A-E896-A8E3A3DAF354} = {6C45AC72-7553-F59F-6FA9-1B27436C6501}
+	EndGlobalSection
+EndGlobal

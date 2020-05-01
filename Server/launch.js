@@ -6,6 +6,7 @@ const http = require("http");
 const fs = require("fs");
 const {testServer} = require("./Test.js");
 
+
 const server = new Server(8000);
 
 /*Resource to create an account from the client */
