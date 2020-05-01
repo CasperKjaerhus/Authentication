@@ -1,2 +1,3 @@
-Server/NN_C_src/build/*
-Server/NN_C_src/build/Release/*
+Server/neuralnet_src/build/*
+Server/neuralnet_src/build/Release/*
+Server/neuralnet_src/node_modules/*

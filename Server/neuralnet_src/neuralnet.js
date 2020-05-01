@@ -1,6 +1,6 @@
-const neuralnet = require("./NN_C_src/build/Release/neuralnetwork");
+const neuralnet = require("./build/Release/neuralnetwork");
 
-const Matrix = class {
+exports.Matrix = class {
   constructor(cols, rows, values=[], rowoffset){
     this.cols = cols;
     this.rows = rows;
@@ -33,3 +33,5 @@ static calcRowOffset(rows, cols) {
   return rowoffset;
   }
 }
+
+exports.loadMatrix = neuralnet.loadMatrix;
