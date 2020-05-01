@@ -1,5 +1,5 @@
 'use strict';
-import {default as Canvas, Drawing} from './canvas_module.js';
+import {default as Canvas, Drawing, smallestX as minX, smallestY as minY} from './canvas_module.js';
 
 const validate        = document.getElementById('validate');
 const buttonNext      = document.getElementById('nextDrawing');
@@ -11,7 +11,7 @@ const canvas          = new Canvas(canvasElem, clearElem);
 
 let data = [];
 let counter = 1;
-let done = 10;
+let done = 2;
 counterElem.innerHTML=`${counter}/${done}`;
 
 //ToDo: Handle succes and fail cases for response
@@ -31,7 +31,6 @@ buttonNext.addEventListener('click', e => {
   } else if (counter === done) {
     //Final packing of drawing data into json object
     exportStuff(drawing);
-
     let drawingData = JSON.stringify({username: validate.value, drawings: data});
 
     //Clear canvas
@@ -77,20 +76,19 @@ validate.addEventListener('change', e => {
   fetch(url, parameters)
     .then(
       function(response) {
-        if (response.status > 399) { 
+        if (response.status > 399) {
           console.log('Looks like there was a problem. Status Code: ' + response.status);
-          return;
         }
-        else if (response === 'taken'){
+        else if (response.body === 'taken') {
           //ToDo: Update display for user to indicate invalid username (mainly css changes)
         }
-        else if (response === 'not taken'){
+        else if (response.body === 'not taken') {
           //ToDo: Update display for user to indicate valid username (mainly css changes)
         }
       }
     )
     .catch(function(err) {
-      console.log('Fetch Error :-S', err);
+      console.log('Fetch Error: ', err);
     });
 
 
@@ -100,32 +98,56 @@ validate.addEventListener('change', e => {
 // Shrinks the object for export to server to desired inputsize
 function exportStuff(drawing){
 
-  let groups = 100;
+  const groups = 100;
   let subArraySize = Math.ceil(drawing.xArray.length/groups);
-  let done = false;
-  
+
+  drawing.xArray.forEach(x => x - minX);
+  drawing.yArray.forEach(y => y - minY);
+
+  //drawing[property].forEach(element => console.log(element, minX));
+
   for (let property in drawing) { 
-    if (property !== 'startedDrawing') {        
-        for (let i = 0; i < groups && done === false; i++) {
+
+    if (property !== 'startedDrawing') {
+
+      for (let i = 0; i < groups; i++) {
+      
+        // If catches event where less than
+        //if (i + subArraySize <= drawing[property].length) {
+        if (((i + subArraySize) <= drawing[property].length) && ((drawing[property].length - subArraySize) > groups)) {
+          const averageSubArray = drawing[property].slice(i, i + subArraySize);
+          const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / subArraySize;
+         
+          console.log(`if statement:  i = ${i} arrayLength = ${drawing[property].length} subArraySize = ${subArraySize}  averageSubArray = ${averageSubArray}`)
+
+          drawing[property].splice(i, subArraySize, averageCalc);
+        } /*else {
+          console.log(`Something went wrong. i = ${i}, drawing[porperty].length = ${drawing[property].length}, subArraySize = ${subArraySize}`);
+          console.log(`${((i + subArraySize) <= drawing[property].length)} && ${((drawing[property].length - (i + subArraySize)) > groups)}`);
+        }*/
         
-        // If catches event where less than 
-        if (i + subArraySize < groups ) {
+        else if (groups % i !== 0) {
+
+          let subArraySize = drawing[property].length - i;
+
+          //den her kan noget næsten
+          subArraySize = subArraySize/2 >= 1 && (drawing[property].length - subArraySize) > groups ? subArraySize : 1;
+
           const averageSubArray = drawing[property].slice(i, i + subArraySize);
           const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / subArraySize;
 
+          console.log(`else statement:  i = ${i} arrayLength = ${drawing[property].length} subArraySize = ${subArraySize}  averageSubArray = ${averageSubArray}`)
+
           drawing[property].splice(i, subArraySize, averageCalc);
         }
-        else {
-          const averageSubArray = drawing[property].slice(i, drawing[property].length - 1);
-          const averageCalc = averageSubArray.reduce((a, b) => a+b, 0) / ((drawing[property].length - 1)  - i);
-
-          drawing[property].splice(i, (drawing[property].length - 1) - i, averageCalc);
-          done = true;
-        }
+        
       }
     }
   }
+  //drawing.xArray.forEach(x => x - minX);
+  //drawing.xArray.forEach(element => console.log(element, minX));
 
+  console.log(`done:  arrayLength = ${drawing.xArray.length}\n xArray: ${drawing.xArray[drawing.xArray.length-3]}\n${drawing.xArray[drawing.xArray.length-2]}\n${drawing.xArray[drawing.xArray.length-1]}\n`)
   data.push(JSON.parse(JSON.stringify(drawing)));
 }
 

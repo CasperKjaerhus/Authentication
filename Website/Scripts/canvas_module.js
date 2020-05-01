@@ -1,37 +1,43 @@
 'use strict';
-
+let timerStart = Date.now();
 let isDrawing = false;
-let timerStart = 0;
-let grad = 0;
 let x = 0;
 let y = 0;
-let smallestX = 0;
-let smallestY = 0;
+let grad = 0;
+let velocity = 0;
+export let smallestX = Infinity;
+export let smallestY = Infinity;
+let prevTime = 0;
+let currTime = 0;
 
 export class Drawing {
-  constructor(x, y, timeStamp, grad) {
+  constructor(x, y, velocity, gradient) {
     this.startedDrawing = false;
     this.xArray = [x];
     this.yArray = [y];
-    this.timeStamps = [timeStamp];
-    this.gradArray = [grad];
+    this.velocities = [velocity];
+    this.gradients = [gradient];
   }
 
-  push(newX, newY, timeStamp, grad) {
+  push(newX, newY, velocity, gradient) {
     this.xArray.push(newX);
     this.yArray.push(newY);
-    this.timeStamps.push(timeStamp);
-    this.gradArray.push(grad);
+    this.velocities.push(velocity);
+    this.gradients.push(gradient);
   }
 
-  gradient(x1, y1, x2, y2) {  
-    
+  gradient(x1, y1, x2, y2) {
     if (x1 !== x2) {
       return (y2-y1)/(x2-x1);
     }
     else {
       return (y2-y1);
     }
+  }
+
+  velocity(currTime, prevTime, x1, x2, y1, y2) {
+    const distance = euclideanDist(x1, x2, y1, y2);
+    return distance/(currTime-prevTime);
   }
 
   // Clears the object arrays
@@ -44,8 +50,6 @@ export class Drawing {
       }
     }
   }
-
-
 }
 
 export default class Canvas {
@@ -72,7 +76,6 @@ export default class Canvas {
   }
 }
 
-
 function mousedown(rect, canvas) {
   return e => {
     if (e.button === 0) {  
@@ -83,22 +86,16 @@ function mousedown(rect, canvas) {
       if (canvas.currDrawing === null || canvas.currDrawing.startedDrawing === false) {
         e.preventDefault();
         
-        timerStart = Date.now();
         grad = 0;
-        
+        velocity = 0;
         /* Initialize main object */
-        canvas.currDrawing = new Drawing(x, y, Date.now() - timerStart, grad);
+        canvas.currDrawing = new Drawing(x, y, velocity, grad);
         canvas.currDrawing.startedDrawing = true;
       }
       isDrawing = true;
     }
   }
 };
-
-
-// Add the event listeners for mousedown, mousemove, and mouseup
-
-
 
 function mousemove(rect, canvas) {
   /*TODO: Out of bounds mouse movements should stop current stroke*/
@@ -107,18 +104,20 @@ function mousemove(rect, canvas) {
       canvas.drawLine(x, y, e.clientX - rect.left, e.clientY - rect.top);
       x = e.clientX - rect.left;
       y = e.clientY - rect.top;
+
+      prevTime = currTime;
+      currTime = Date.now() - timerStart;
+
       grad = canvas.currDrawing.gradient(canvas.currDrawing.xArray.length-1, canvas.currDrawing.yArray.length-1, x, y);
-      
-      /*
-      Below is the code for correcting the position of the drawing
+      velocity = canvas.currDrawing.velocity(currTime, prevTime, canvas.currDrawing.xArray.length-1, canvas.currDrawing.yArray.length-1, x, y);
+      //Below is the code for correcting the position of the drawing
       smallestX = smallestX > x ? x : smallestX;
       smallestY = smallestY > y ? y : smallestY;
-      */
-      canvas.currDrawing.push(x, y, Date.now() - timerStart, grad);
+
+      canvas.currDrawing.push(x, y, velocity, grad);
     }
   }
 };
-
 
 /* Stop drawing */
 function mouseup(rect, canvas) {
@@ -137,4 +136,6 @@ function clearEventListener(canvas) {
   return () => canvas.currDrawing.clear(canvas);
 };
 
-
+function euclideanDist(x1, x2, y1, y2){
+  return Math.sqrt((x1^2+x2^2+y1^2+y2^2));
+}

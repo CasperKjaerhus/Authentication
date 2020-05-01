@@ -55,7 +55,7 @@ function JSONToData(dataObject) {
   let dataString = "";
   console.log(`Wat: ${dataObject}`);
   for (let i = 0; i < dataObject.xArray.length; i++) {
-    dataString += `${dataObject.xArray[i]} ${dataObject.yArray[i]} ${dataObject.timeStamps[i]} ${dataObject.gradArray[i]}`; /* What actually goes into gradArray? What is the input?*/
+    dataString += `${dataObject.xArray[i]} ${dataObject.yArray[i]} ${dataObject.velocities[i]} ${dataObject.gradients[i]}`; /* What actually goes into gradArray? What is the input?*/
 
     if (i <= dataObject.xArray.length-1) {
       dataString += " "; /*Adds a whitespace between*/
