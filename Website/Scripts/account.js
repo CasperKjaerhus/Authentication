@@ -66,7 +66,7 @@ buttonNext.addEventListener('click', e => {
    Client-side: Handle response
 */
 validate.addEventListener('change', e => {
-  const url = "/checkmig123/";                            // fix STRING
+  const url = "/checkusername/";
 
   const parameters = {
     method: "POST",
