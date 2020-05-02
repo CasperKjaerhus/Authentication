@@ -6,6 +6,11 @@ exports.loadMatrix = function (fileLocation) {
   return new exports.Matrix(obj.rows, obj.cols, obj.values, obj.rowoffset);
 };
 
+exports.normalizeMatrix = function (matrix) {
+  const obj = neuralnet.normalizeMatrix(matrix);
+  return new exports.Matrix(obj.rows, obj.cols, obj.values, obj.rowoffset);
+};
+
 exports.Matrix = class {
   constructor(rows, cols, values=[], rowoffset){
     this.cols = cols;

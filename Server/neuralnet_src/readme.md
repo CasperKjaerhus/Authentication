@@ -29,8 +29,8 @@ A matrix holds an array of values arranged in rows and coloumns
 
 * rows **\<Number\>**
 * coloumns **\<Number\>**
-* values **\<Number[ ]\>**
-* rowoffset **\<Number [ ]\>** - optional
+* values **\<Number[ ]\>** - optional: gets filled with zeroes if left out
+* rowoffset **\<Number [ ]\>** - optional - gets calculated 
 
 #### Matrix.getElement(rows, cols)
 Gets value at specified row and coloumn

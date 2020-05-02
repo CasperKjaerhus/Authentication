@@ -12,16 +12,24 @@ namespace neuralnetwork {
 /*Function headers*/
 napi_status makeMatrixNodeObj(napi_env env, matrix* mat, napi_value* matrixObj);
 napi_value loadMatrix(napi_env env, napi_callback_info cbinfo);
+matrix* makeCMatrix(napi_env env, napi_value mat);
+napi_value normalizeMatrix(napi_env env, napi_callback_info cbinfo);
 
 
 napi_value init(napi_env env, napi_value exports) {
   napi_status status;
-  napi_value loadMatrixFn;
+  napi_value loadMatrixFn, normalizeMatrixfn;
 
   status = napi_create_function(env, NULL, 0, loadMatrix, NULL, &loadMatrixFn);
   if(status != napi_ok) return NULL;
 
   status = napi_set_named_property(env, exports, "loadMatrix", loadMatrixFn);
+  if (status != napi_ok) return NULL;
+
+  status = napi_create_function(env, NULL, 0, normalizeMatrix, NULL, &normalizeMatrixfn);
+  if(status != napi_ok) return NULL;
+
+  status = napi_set_named_property(env, exports, "normalizeMatrix", normalizeMatrixfn);
   if (status != napi_ok) return NULL;
 
   return exports;
@@ -59,6 +67,26 @@ napi_value loadMatrix(napi_env env, napi_callback_info cbinfo) {
   killmat(&mat);
 
   return matrixObj;
+}
+
+napi_value normalizeMatrix(napi_env env, napi_callback_info cbinfo){
+  napi_value matrixObj, values, matrixNormalizedObj;
+  size_t parametersAmount = 1;
+  matrix *matOriginal, *matExt, *matNormalized;
+
+  napi_status status = napi_get_cb_info(env, cbinfo, &parametersAmount, &matrixObj, NULL, NULL);
+  if(status != napi_ok) return NULL;
+
+  matOriginal = makeCMatrix(env, matrixObj);
+
+  initmat(&matExt, matOriginal->cols, 2, 0.0);
+  initmat(&matNormalized, matOriginal->rows, matOriginal->cols, 0.0);
+
+  matnormp(matOriginal, &matNormalized, &matExt, 1);
+  
+  makeMatrixNodeObj(env, matNormalized, &matrixNormalizedObj);
+
+  return matrixNormalizedObj;
 }
 
 
@@ -125,6 +153,52 @@ napi_status makeMatrixNodeObj(napi_env env, matrix* mat, napi_value* matrixObj){
   if(status != napi_ok) return status;
 
   return napi_ok;
+}
+
+matrix* makeCMatrix(napi_env env, napi_value mat){
+  napi_value keyRows, keyCols, keyValues, rows, cols, values;
+  napi_status status;
+
+  int valRows, valCols;
+  float *valValues;
+
+  matrix *matC;
+  /*Creates property key strings*/
+  status = napi_create_string_utf8(env, "rows", (size_t) (sizeof(char) * 4), &keyRows);
+  if(status != napi_ok) return NULL;
+  status = napi_create_string_utf8(env, "cols", (size_t) (sizeof(char) * 4), &keyCols);
+  if(status != napi_ok) return NULL;
+  status = napi_create_string_utf8(env, "values", (size_t) (sizeof(char) * 6), &keyValues);
+  if(status != napi_ok) return NULL;
+
+  /*Gets properties*/
+  status = napi_get_property(env, mat, keyRows, &rows);
+  if(status != napi_ok) return NULL;
+  status = napi_get_property(env, mat, keyCols, &cols);
+  if(status != napi_ok) return NULL;
+  status = napi_get_property(env, mat, keyValues, &values);
+  if(status != napi_ok) return NULL;
+
+  /*Turns rows and cols into C variables*/
+  status = napi_get_value_int32(env, rows, &valRows);
+  if(status != napi_ok) return NULL;
+  status = napi_get_value_int32(env, cols, &valCols);
+  if(status != napi_ok) return NULL;
+
+  initmat(&matC, valRows, valCols, 0);
+
+  for(int i = 0; i < valRows * valCols; i++){
+    napi_value element;
+    double elementC;
+
+    status = napi_get_element(env, values, i, &element);
+    if(status != napi_ok) return NULL;
+
+    status = napi_get_value_double(env, element, &elementC);
+    if(status != napi_ok) return NULL;
+    matC->vaerdi[i] = (float) elementC;
+  }
+  return matC;
 }
 
 /*Module added to node through init function*/
