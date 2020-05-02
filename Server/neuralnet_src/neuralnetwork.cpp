@@ -110,7 +110,7 @@ napi_status makeMatrixNodeObj(napi_env env, matrix* mat, napi_value* matrixObj){
   status = napi_create_array_with_length(env, mat->cols, &rowoffsetArray);
   if(status != napi_ok) return status;
 
-  /*Fills the array with matrix values*/
+  /*Fills the array with matrix rowoffset*/
   for(int i = 0; i < mat->cols; i++){
 
     napi_value element;

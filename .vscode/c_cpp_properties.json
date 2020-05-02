@@ -4,8 +4,8 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/Server/NN_C_src/node_modules/**",
-                "${workspaceFolder}/Server/NN_C_src/node_modules/node-addon-api/**"
+                "${workspaceFolder}/Server/neuralnet_src/node_modules/**",
+                "${workspaceFolder}/Server/neuralnet_src/node_modules/node-addon-api/**"
             ],
             "defines": [
                 "_DEBUG",

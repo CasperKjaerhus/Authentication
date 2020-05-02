@@ -3,17 +3,25 @@ const neuralnet = require("./build/Release/neuralnetwork");
 /*Loads a matrix from a file through C API*/
 exports.loadMatrix = function (fileLocation) {
   const obj = neuralnet.loadMatrix(fileLocation);
-  return new exports.Matrix(obj.cols, obj.rows, obj.values, obj.rowoffset);
+  return new exports.Matrix(obj.rows, obj.cols, obj.values, obj.rowoffset);
 };
 
 exports.Matrix = class {
-  constructor(cols, rows, values=[], rowoffset){
+  constructor(rows, cols, values=[], rowoffset){
     this.cols = cols;
     this.rows = rows;
     this.values = values;
 
+    /*if no values are passed to constructor: fill array with 0.0*/
+    if(values.length === 0){
+      for(let i = 0; i < cols * rows; i++)
+        this.values.push(0.0);
+    }
+    else if(cols * rows != values.length)
+      throw `Not adequate amount of values. expected ${this.cols * this.rows}, recieved: ${values.length}`;
+
     if(rowoffset === undefined) {
-      this.rowoffset = calcRowOffset(cols, rows);
+      this.rowoffset = calcRowOffset(rows, cols);
     } else {
       this.rowoffset = rowoffset;
     }
