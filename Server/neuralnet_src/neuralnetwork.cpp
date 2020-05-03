@@ -14,11 +14,12 @@ napi_status makeMatrixNodeObj(napi_env env, matrix* mat, napi_value* matrixObj);
 napi_value loadMatrix(napi_env env, napi_callback_info cbinfo);
 matrix* makeCMatrix(napi_env env, napi_value mat);
 napi_value normalizeMatrix(napi_env env, napi_callback_info cbinfo);
+napi_value normalizeMatrixWithExt(napi_env env, napi_callback_info cbinfo);
 
 
 napi_value init(napi_env env, napi_value exports) {
   napi_status status;
-  napi_value loadMatrixFn, normalizeMatrixfn;
+  napi_value loadMatrixFn, normalizeMatrixfn, normalizeMatrixWithExtfn;
 
   status = napi_create_function(env, NULL, 0, loadMatrix, NULL, &loadMatrixFn);
   if(status != napi_ok) return NULL;
@@ -30,6 +31,12 @@ napi_value init(napi_env env, napi_value exports) {
   if(status != napi_ok) return NULL;
 
   status = napi_set_named_property(env, exports, "normalizeMatrix", normalizeMatrixfn);
+  if (status != napi_ok) return NULL;
+
+  status = napi_create_function(env, NULL, 0, normalizeMatrixWithExt, NULL, &normalizeMatrixWithExtfn);
+  if(status != napi_ok) return NULL;
+
+  status = napi_set_named_property(env, exports, "normalizeMatrixWithUext", normalizeMatrixWithExtfn);
   if (status != napi_ok) return NULL;
 
   return exports;
@@ -70,7 +77,7 @@ napi_value loadMatrix(napi_env env, napi_callback_info cbinfo) {
 }
 
 napi_value normalizeMatrix(napi_env env, napi_callback_info cbinfo){
-  napi_value matrixObj, values, matrixNormalizedObj;
+  napi_value matrixObj, values, matrixNormalizedObj, matrixExtObj, returnArray;
   size_t parametersAmount = 1;
   matrix *matOriginal, *matExt, *matNormalized;
 
@@ -85,11 +92,50 @@ napi_value normalizeMatrix(napi_env env, napi_callback_info cbinfo){
   matnormp(matOriginal, &matNormalized, &matExt, 1);
   
   makeMatrixNodeObj(env, matNormalized, &matrixNormalizedObj);
+  makeMatrixNodeObj(env, matExt, &matrixExtObj);
 
-  return matrixNormalizedObj;
+  status = napi_create_array_with_length(env, 2, &returnArray);
+  if(status != napi_ok) return NULL;
+
+  status = napi_set_element(env, returnArray, 0, matrixNormalizedObj);
+  if(status != napi_ok) return NULL;
+
+  status = napi_set_element(env, returnArray, 1, matrixExtObj);
+  if(status != napi_ok) return NULL;
+
+  killmat(&matExt);
+  killmat(&matNormalized);
+  killmat(&matOriginal);
+
+  return returnArray;
 }
 
+napi_value normalizeMatrixWithExt(napi_env env, napi_callback_info cbinfo){
+  napi_status status;
+  napi_value matrixParam, extParam, returnVal;
 
+  napi_value params[2];
+  size_t paramNum = 2;
+
+  matrix *matrixOriginal, *uext, *normMatrix;
+
+  status = napi_get_cb_info(env, cbinfo, &paramNum, params, NULL, NULL);
+  if(status != napi_ok) return NULL;
+
+  matrixOriginal = makeCMatrix(env, params[0]);
+  uext = makeCMatrix(env, params[1]);
+
+  initmat(&normMatrix, matrixOriginal->rows, matrixOriginal->cols, 0.0);
+  matnormpext(matrixOriginal, &normMatrix, uext, 1);
+
+  status = makeMatrixNodeObj(env, normMatrix, &returnVal);
+  if(status != napi_ok) return NULL;
+
+  killmat(&matrixOriginal);
+  killmat(&uext);
+  killmat(&normMatrix);
+  return returnVal;
+}
 /*Non-exported functions below here*/
 
 /****************************************************************************/
