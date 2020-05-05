@@ -166,6 +166,78 @@ save_bpenet(char const *filnavn, mlp_net * netvark)
     fclose(infil);
 }
 
+void 
+save_bpenetTxt(char const *filnavn, mlp_net *netvark)
+{
+    char fileName[50];
+
+    strcpy(fileName,filnavn);
+    strcat(fileName,"w1");
+
+    saveMattxt(fileName, netvark->inw);
+
+    strcpy(fileName,filnavn);
+    strcat(fileName,"w2");
+
+    saveMattxt(fileName, netvark->udw);
+
+    strcpy(fileName,filnavn);
+    strcat(fileName,"off1");
+
+    saveMattxt(fileName, netvark->inoff);
+
+    strcpy(fileName,filnavn);
+    strcat(fileName,"off2");
+
+    saveMattxt(fileName, netvark->udoff); 
+}
+
+void load_bpenetTxt(char const *filnavn, mlp_net **netvark, int *antinput, int *antneuroner, int *antoutput)
+{
+    if ((*netvark = (mlp_net *)malloc(sizeof(mlp_net))) == NULL)
+        Error(1);
+
+    char fileName[50];
+
+    strcpy(fileName,filnavn);
+    strcat(fileName,"w1");
+
+    loadMattxt( fileName, &((*netvark)->inw));
+
+    strcpy(fileName,filnavn);
+    strcat(fileName,"w2");
+
+    loadMattxt( fileName, &((*netvark)->udw));
+
+    strcpy(fileName,filnavn);
+    strcat(fileName,"off1");
+
+    loadMattxt( fileName, &((*netvark)->inoff));
+
+    strcpy(fileName,filnavn);
+    strcat(fileName,"off2");
+
+    loadMattxt( fileName, &((*netvark)->udoff));
+
+    *antinput = ((*netvark)->inw)->cols;
+    *antneuroner = ((*netvark)->inw)->rows;
+    *antoutput = ((*netvark)->udw)->rows;
+
+    initmat(&((*netvark)->inwmel), *antneuroner, *antinput, 0.0);
+    initmat(&((*netvark)->udwmel), *antoutput, *antneuroner, 0.0);
+    initmat(&((*netvark)->fejl1), *antneuroner, 1, 0.0);
+    initmat(&((*netvark)->fejl2), *antoutput, 1, 0.0);
+    initmat(&((*netvark)->out0), 1, *antinput, 0.0);
+    initmat(&((*netvark)->out1), 1, *antneuroner, 0.0);
+    initmat(&((*netvark)->melres1), *antneuroner, 1, 0.0);
+    initmat(&((*netvark)->melres2), *antneuroner, 1, 0.0);
+    initmat(&((*netvark)->melres3), *antoutput, 1, 0.0);
+    initmat(&((*netvark)->indwt), *antinput, *antneuroner, 0.0);
+    initmat(&((*netvark)->udwt), *antneuroner, *antoutput, 0.0);
+
+}
+
+
 
 /*********************************************************************/
 /* */

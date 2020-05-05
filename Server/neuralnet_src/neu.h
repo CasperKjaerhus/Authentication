@@ -47,6 +47,11 @@ void
 kill_bpenet(mlp_net ** netvark);
 void CalcPerf(mlp_net *nn_net, matrix **perf, matrix *inLearning, matrix *outLearning, int l);
 
+void 
+save_bpenetTxt(char const *filnavn, mlp_net *netvark);
+
+void 
+load_bpenetTxt(char const *filnavn, mlp_net **netvark, int *antinput, int *antneuroner, int *antoutput);
 
 void
 write_bpenet(mlp_net *netvark);
