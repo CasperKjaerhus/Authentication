@@ -1,6 +1,6 @@
 #define elm(matx,r,c) (*(((matx)->vaerdi+*((matx)->rowoffset+c)+r)))
 #define elv(veto,c) (*(veto->vaerdi+c))
-#define max(a,b) ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a > _b ? _a : _b; }) 
+#define max(a, b) ((a) > (b) ? (a) : (b))
 
 typedef char stringM[40];
 
