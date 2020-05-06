@@ -122,7 +122,7 @@ exports.Matrix = class {
     const obj = neuralnet.normalizeMatrixWithUext(matB, matA.getExt());
     return new exports.Matrix(obj.rows, obj.cols, obj.values, obj.rowoffset);
   }
-  
+
   static compare(matA, matB, range){
     for(let i = 0; i < matA.rows; i++){
       for(let j = 0; j < matA.cols; j++){
@@ -186,8 +186,8 @@ exports.MLP_Net = class {
     neuralnet.saveMLP(fileLocation, this);
   }
 
-  train(numEpochs, trainMatrixInput, trainMatrixOutput, alphaVal){
-    const obj = neuralnet.trainMLPNet(this, numEpochs, trainMatrixInput, trainMatrixOutput, alphaVal);
+  async train(numEpochs, trainMatrixInput, trainMatrixOutput, alphaVal){
+    const obj = await neuralnet.trainMLPNet(this, numEpochs, trainMatrixInput, trainMatrixOutput, alphaVal);
 
     this.inw = obj.inw;
     this.udw = obj.udw;

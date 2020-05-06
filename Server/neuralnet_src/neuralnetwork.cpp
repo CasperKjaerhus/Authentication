@@ -13,19 +13,26 @@ namespace neuralnetwork {
 
 napi_status makeMatrixNodeObj(napi_env env, matrix* mat, napi_value* matrixObj);
 napi_status makeMlpnetNodeObj(napi_env env, mlp_net nn_net, napi_value* mlpnetVal);
+napi_status getProperty(napi_env env, napi_value obj, char *key, napi_value *value);
+napi_status getString(napi_env env, napi_value stringObj, char **string);
+
 matrix* makeCMatrix(napi_env env, napi_value mat);
 mlp_net* makeCMlp_net(napi_env env, napi_value nn_netVal);
+
 napi_value loadMatrix(napi_env env, napi_callback_info cbinfo);
 napi_value normalizeMatrix(napi_env env, napi_callback_info cbinfo);
 napi_value normalizeMatrixWithExt(napi_env env, napi_callback_info cbinfo);
 napi_value gaussinit(napi_env env, napi_callback_info cbinfo);
-napi_status getProperty(napi_env env, napi_value obj, char *key, napi_value *value);
-napi_status getString(napi_env env, napi_value stringObj, char **string);
 napi_value loadMLPNet(napi_env env, napi_callback_info cbinfo);
 napi_value saveMLPNet(napi_env env, napi_callback_info cbinfo);
 napi_value trainMLPNet(napi_env env, napi_callback_info cbinfo);
 napi_value decideMLPNet(napi_env env, napi_callback_info cbinfo);
 
+void* MLPTrainExecute(napi_env env, void *data);
+
+void* MLPTrainComplete(napi_env env, napi_status status, void* data);
+
+/*Function definitions*/
 napi_value init(napi_env env, napi_value exports) {
   napi_status status;
   napi_value loadMatrixFn, normalizeMatrixfn, normalizeMatrixWithExtfn, 
@@ -262,45 +269,66 @@ napi_value saveMLPNet(napi_env env, napi_callback_info cbinfo){
 }
 
 napi_value trainMLPNet(napi_env env, napi_callback_info cbinfo){
-  napi_value parameters[5], napiNeuralNetObj;
+  napi_value parameters[5], napiNeuralNetObj, promise, promiseName;
   size_t paramNum = 5;
-  mlp_net *neuralNet;
+  mlp_net **neuralNet;
 
-  matrix *trainIn, *trainOut, *tempMat;
+  matrix **trainIn, **trainOut, **tempMat;
+
   int numEpochs;
 
   double alphaVal;
 
+  neuralNet = (mlp_net **) malloc(sizeof(mlp_net **));
+  trainIn = (matrix **) calloc(sizeof(matrix **), 1);
+  trainOut = (matrix **) calloc(sizeof(matrix **), 1);
+  tempMat = (matrix **) calloc(sizeof(matrix **), 1);
+
   napi_status status = napi_get_cb_info(env, cbinfo, &paramNum, parameters, NULL, NULL);
   if (status != napi_ok) return NULL;
-  neuralNet = makeCMlp_net(env, parameters[0]);
+
+  *neuralNet = makeCMlp_net(env, parameters[0]);
 
   status = napi_get_value_int32(env, parameters[1], &numEpochs);
   if (status != napi_ok) return NULL;
   status = napi_get_value_double(env, parameters[4], &alphaVal);
   if (status != napi_ok) return NULL;
 
-  trainIn = makeCMatrix(env, parameters[2]);
-  trainOut = makeCMatrix(env, parameters[3]);
+  *trainIn = makeCMatrix(env, parameters[2]);
+  *trainOut = makeCMatrix(env, parameters[3]);
+  initmat(tempMat, (*trainIn)->rows, max((*trainIn)->cols, (*trainOut)->cols), 0.0);
 
-  initmat(&tempMat, trainIn->rows, max(trainIn->cols, trainOut->cols), 0.0);
+  /*Async time*/
+  struct MLPTrainExecuteData{
+    matrix **tempMat, **trainIn, **trainOut;
+    mlp_net **neuralNet;
+    int numEpochs;
+    double alphaVal;
+    napi_deferred promise;
+  } *dataVar;
 
-  for (int i = 0; i < numEpochs; i++) {
-    mlp_train(neuralNet, trainIn, trainOut, 20, (float) alphaVal);
-    ShuffleMat(trainIn, trainOut, tempMat);
-  }
+  dataVar = (MLPTrainExecuteData *) calloc(sizeof(MLPTrainExecuteData), 1);
+  dataVar->alphaVal = alphaVal;
+  dataVar->tempMat = tempMat;
+  dataVar->trainIn = trainIn;
+  dataVar->trainOut = trainOut;
+  dataVar->neuralNet = neuralNet;
+  dataVar->numEpochs = numEpochs;
 
-  status = makeMlpnetNodeObj(env, *neuralNet, &napiNeuralNetObj);
+  napi_create_string_utf8(env, "TrainWork", 10, &promiseName);
+  status = napi_create_promise(env, &(dataVar->promise), &promise);
+
+  napi_async_work trainWork;
+
+  status = napi_create_async_work(env, NULL, promiseName, (napi_async_execute_callback) MLPTrainExecute, (napi_async_complete_callback) MLPTrainComplete, dataVar, &trainWork);
   if(status != napi_ok) return NULL;
 
-  kill_bpenet(&neuralNet);
-  killmat(&trainIn);
-  killmat(&trainOut);
-  killmat(&tempMat);
+  status = napi_queue_async_work(env, trainWork);
+  if(status != napi_ok) return NULL;
 
-  return napiNeuralNetObj;
+  return promise;
 }
-
+#pragma region fold
 napi_value decideMLPNet(napi_env env, napi_callback_info cbinfo){
   napi_value output, parameters[3];
   size_t parameterNum = 3;
@@ -622,6 +650,47 @@ napi_status getString(napi_env env, napi_value stringObj, char **string){
   if(status != napi_ok) return status;
 
   return napi_ok;
+}
+#pragma endregion fold
+void* MLPTrainExecute(napi_env env, void *data){
+  struct MLPTrainExecuteData{
+    matrix **tempMat, **trainIn, **trainOut;
+    mlp_net **neuralNet;
+    int numEpochs;
+    double alphaVal;
+    napi_deferred promise;
+  } *dataVar;
+
+  dataVar = (MLPTrainExecuteData *) data;
+  
+  printf("mlptrain for loop %f\n", (*dataVar->neuralNet)->udw->vaerdi[0]);
+  for (int i = 0; i < dataVar->numEpochs; i++) {
+    mlp_train(*dataVar->neuralNet, *dataVar->trainIn, *dataVar->trainOut, 20, (float) dataVar->alphaVal);
+    ShuffleMat(*dataVar->trainIn, *dataVar->trainOut, *dataVar->tempMat);
+  }
+
+  return NULL;
+}
+
+void* MLPTrainComplete(napi_env env, napi_status status, void* data){
+  napi_value napiNeuralNetObj;
+  struct MLPTrainExecuteData{
+    matrix **tempMat, **trainIn, **trainOut;
+    mlp_net **neuralNet;
+    int numEpochs;
+    double alphaVal;
+    napi_deferred promise;
+  } *dataVar;
+
+  dataVar = (MLPTrainExecuteData *) data;
+  status = makeMlpnetNodeObj(env, **(dataVar->neuralNet), &napiNeuralNetObj);
+  if(status != napi_ok) return NULL;
+  printf("Resolved! :)\n");
+  napi_resolve_deferred(env, dataVar->promise, napiNeuralNetObj);
+
+  free(dataVar);
+
+  return NULL;
 }
 
 /*Module added to node through init function*/
