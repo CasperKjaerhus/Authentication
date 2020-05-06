@@ -371,14 +371,14 @@ mlp_train(mlp_net * nn_net, matrix * xl, matrix * yl, int ant_itt, float alfa)
 
         }
 
-        if (i ==ant_itt)
+        /*if (i ==ant_itt)
         {
             sumfejl =
                 sumfejl / (float) (xl->rows);
             printf("Error:  %e \n",
                    sumfejl);
 
-        }
+        }*/
     }
 
     killmat(&nninput);

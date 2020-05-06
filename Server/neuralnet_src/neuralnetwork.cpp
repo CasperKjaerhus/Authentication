@@ -663,7 +663,6 @@ void* MLPTrainExecute(napi_env env, void *data){
 
   dataVar = (MLPTrainExecuteData *) data;
   
-  printf("mlptrain for loop %f\n", (*dataVar->neuralNet)->udw->vaerdi[0]);
   for (int i = 0; i < dataVar->numEpochs; i++) {
     mlp_train(*dataVar->neuralNet, *dataVar->trainIn, *dataVar->trainOut, 20, (float) dataVar->alphaVal);
     ShuffleMat(*dataVar->trainIn, *dataVar->trainOut, *dataVar->tempMat);
@@ -685,7 +684,7 @@ void* MLPTrainComplete(napi_env env, napi_status status, void* data){
   dataVar = (MLPTrainExecuteData *) data;
   status = makeMlpnetNodeObj(env, **(dataVar->neuralNet), &napiNeuralNetObj);
   if(status != napi_ok) return NULL;
-  printf("Resolved! :)\n");
+
   napi_resolve_deferred(env, dataVar->promise, napiNeuralNetObj);
 
   free(dataVar);
