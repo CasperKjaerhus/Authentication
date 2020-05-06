@@ -2,3 +2,4 @@ Server/neuralnet_src/build/*
 Server/neuralnet_src/build/Release/*
 Server/neuralnet_src/node_modules/*
 Server/data/*
+!Server/neuralnet_src/build/Release/neuralnetwork.node
