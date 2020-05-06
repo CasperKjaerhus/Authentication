@@ -250,8 +250,12 @@ loadMattxt(char const *navn, matrix **mat)
     matrix *matN;
     int rows,cols;
     float val;
-    if ((infil = fopen(navn, "r")) == NULL)
-        ErrorTxt(2,"loadMattxt");
+    if ((infil = fopen(navn, "r")) == NULL){
+        char *errstring = (char*) calloc(sizeof(char), strlen(navn)+1+15);
+        strcat(errstring, "loadMattxt ");
+        strcat(errstring, navn);
+        ErrorTxt(2, errstring);
+    }  
     if(!fscanf(infil,"%d", &rows))  ErrorTxt(0,"loadMattxt");
     if(!fscanf(infil,"  %d\n",&cols)) ErrorTxt(0,"loadMattxt");
 
