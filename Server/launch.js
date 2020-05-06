@@ -5,6 +5,8 @@ const Database = require("./Database.js").Database;
 const http = require("http");
 const fs = require("fs");
 const {testServer} = require("./Test.js");
+const neuralnet = require("./neuralnet_src");
+
 
 const server = new Server(8000);
 
@@ -46,6 +48,42 @@ server.addResource(ServerResource.Servable("../Website/Scripts/canvas.js", "/Scr
 server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style/index.css"));
 
 server.start();
+
+server.addResource(new ServerResource("GET", "/startNN/", async (req, res) => {
+  const inLearningMat = neuralnet.loadMatrix("./data/Test/inLearning.txt");
+  const outLearningMat = neuralnet.loadMatrix("./data/Test/outLearning.txt");
+
+  const inLearningMatNorm = inLearningMat.normalize();
+  const inTest = neuralnet.loadMatrix("./data/Test/inTst.txt").normalizeThrough(inLearningMat);
+
+  const outTest = neuralnet.loadMatrix("./data/Test/outTst.txt");
+
+  const neuralnetwork = new neuralnet.MLP_Net(inLearningMat.cols, 6, outLearningMat.cols, 0.0, 0.4).gaussinit();
+
+  console.log("Training...");
+  await neuralnetwork.train(10000, inLearningMatNorm, outLearningMat, 0.02);
+  console.log("finished training!");
+  let numberOfErrors = 0;
+
+  for(let i = 1; i <= inTest.rows; i++){
+
+    const valueMat = neuralnetwork.decide(inTest.getRow(i));
+
+    if(neuralnet.Matrix.compare(valueMat, outTest.getRow(i), 0.2) === false){
+      numberOfErrors++;
+    }
+  }
+
+  res.writeHead(200);
+  res.write("Number of errors: " + numberOfErrors);
+  res.end();
+}));
+/*Neuralnet api testing*/
+
+
+
+
+
 
 //testServer(); // Enable this for testing! :)
 
