@@ -687,6 +687,14 @@ void* MLPTrainComplete(napi_env env, napi_status status, void* data){
 
   napi_resolve_deferred(env, dataVar->promise, napiNeuralNetObj);
 
+  killmat(dataVar->tempMat);
+  killmat(dataVar->trainIn);
+  killmat(dataVar->trainOut);
+  free(dataVar->tempMat);
+  free(dataVar->trainIn);
+  free(dataVar->trainOut);
+  kill_bpenet(dataVar->neuralNet);
+  free(dataVar->neuralNet);
   free(dataVar);
 
   return NULL;
