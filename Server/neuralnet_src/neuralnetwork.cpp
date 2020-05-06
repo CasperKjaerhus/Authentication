@@ -9,13 +9,6 @@
 
 namespace neuralnetwork {
 
-typedef struct{
-  napi_value *inw,*udw,*inoff,*udoff, *udwt, *indwt, *inwmel, *udwmel;
-  napi_value *fejl1, *fejl2, *melres1, *melres2, *melres3;
-  napi_value *out0, *out1;
-  napi_value *numNodesIn, *numNodesHiddenLayer, *numNodesOut;
-} napi_value_mlp_net;
-
 /*Function headers*/
 
 napi_status makeMatrixNodeObj(napi_env env, matrix* mat, napi_value* matrixObj);
@@ -27,10 +20,16 @@ napi_value normalizeMatrix(napi_env env, napi_callback_info cbinfo);
 napi_value normalizeMatrixWithExt(napi_env env, napi_callback_info cbinfo);
 napi_value gaussinit(napi_env env, napi_callback_info cbinfo);
 napi_status getProperty(napi_env env, napi_value obj, char *key, napi_value *value);
+napi_status getString(napi_env env, napi_value stringObj, char **string);
+napi_value loadMLPNet(napi_env env, napi_callback_info cbinfo);
+napi_value saveMLPNet(napi_env env, napi_callback_info cbinfo);
+napi_value trainMLPNet(napi_env env, napi_callback_info cbinfo);
+napi_value decideMLPNet(napi_env env, napi_callback_info cbinfo);
 
 napi_value init(napi_env env, napi_value exports) {
   napi_status status;
-  napi_value loadMatrixFn, normalizeMatrixfn, normalizeMatrixWithExtfn, gaussinitfn;
+  napi_value loadMatrixFn, normalizeMatrixfn, normalizeMatrixWithExtfn, 
+             gaussinitfn, mlploadfn, mlpsavefn, trainMLPNetfn, decideMLPNetfn;
 
   status = napi_create_function(env, NULL, 0, loadMatrix, NULL, &loadMatrixFn);
   if(status != napi_ok) return NULL;
@@ -56,6 +55,30 @@ napi_value init(napi_env env, napi_value exports) {
   status = napi_set_named_property(env, exports, "gaussinit", gaussinitfn);
   if (status != napi_ok) return NULL;
 
+  status = napi_create_function(env, NULL, 0, loadMLPNet, NULL, &mlploadfn);
+  if(status != napi_ok) return NULL;
+
+  status = napi_set_named_property(env, exports, "loadMLP", mlploadfn);
+  if (status != napi_ok) return NULL;
+
+  status = napi_create_function(env, NULL, 0, saveMLPNet, NULL, &mlpsavefn);
+  if(status != napi_ok) return NULL;
+
+  status = napi_set_named_property(env, exports, "saveMLP", mlpsavefn);
+  if (status != napi_ok) return NULL;
+
+  status = napi_create_function(env, NULL, 0, trainMLPNet, NULL, &trainMLPNetfn);
+  if(status != napi_ok) return NULL;
+
+  status = napi_set_named_property(env, exports, "trainMLPNet", trainMLPNetfn);
+  if (status != napi_ok) return NULL;
+
+  status = napi_create_function(env, NULL, 0, decideMLPNet, NULL, &decideMLPNetfn);
+  if(status != napi_ok) return NULL;
+
+  status = napi_set_named_property(env, exports, "decideMLPNet", decideMLPNetfn);
+  if (status != napi_ok) return NULL;
+
   return exports;
 }
 
@@ -67,20 +90,15 @@ napi_value loadMatrix(napi_env env, napi_callback_info cbinfo) {
 
   matrix* mat;
 
-  napi_value parameters[1], matrixObj;
+  napi_value parameter, matrixObj;
   size_t parametersAmount = 1;
 
   /*Getting the parameters sent from JavaScript call, into parameters array*/
-  napi_status status = napi_get_cb_info(env, cbinfo, &parametersAmount, parameters, NULL, NULL);
+  napi_status status = napi_get_cb_info(env, cbinfo, &parametersAmount, &parameter, NULL, NULL);
   if(status != napi_ok) return NULL;
 
-  /*Gets the length of the string into length variable*/
-  status = napi_get_value_string_utf8(env, parameters[0], NULL, 0, &length);
-  if(status != napi_ok) return NULL;
-  
-  /*Allocates the apropriate amount and copies the JavaScript weak typed string into C typed char* */
-  fileLocation = (char *) malloc(sizeof(char) * length+1); // +1 for \0 (string termination)
-  status = napi_get_value_string_utf8(env, parameters[0], fileLocation, length+1, NULL);
+  /*Puts parameter string into fileLocation*/
+  status = getString(env, parameter, &fileLocation);
   if(status != napi_ok) return NULL;
 
   /*Loading and creation of matrix object*/
@@ -89,6 +107,7 @@ napi_value loadMatrix(napi_env env, napi_callback_info cbinfo) {
 
   /*Frees allocated memory space*/
   killmat(&mat);
+  free(fileLocation);
 
   return matrixObj;
 }
@@ -158,7 +177,6 @@ napi_value normalizeMatrixWithExt(napi_env env, napi_callback_info cbinfo){
 napi_value gaussinit(napi_env env, napi_callback_info cbinfo){
   napi_status status;
 
-  napi_value initNet;
   napi_value parameters[5];
   size_t parametersAmount = 5;
 
@@ -186,10 +204,129 @@ napi_value gaussinit(napi_env env, napi_callback_info cbinfo){
 
   status = makeMlpnetNodeObj(env, *nn, &mlp_netVal);
   if(status != napi_ok) return NULL;
-  
+
   kill_bpenet(&nn);
 
   return mlp_netVal;
+}
+
+napi_value loadMLPNet(napi_env env, napi_callback_info cbinfo){
+  char* fileLocation;
+  mlp_net *neuralNet;
+  int nnIn, nnHidden, nnOut;
+
+  napi_value parameter, mlpnn;
+  size_t parametersAmount = 1;
+
+  napi_status status = napi_get_cb_info(env, cbinfo, &parametersAmount, &parameter, NULL, NULL);
+  if(status != napi_ok) return NULL; 
+
+  status = getString(env, parameter, &fileLocation);
+  if(status != napi_ok) return NULL;
+
+  load_bpenetTxt(fileLocation, &neuralNet, &nnIn, &nnHidden, &nnOut);
+  status = makeMlpnetNodeObj(env, *neuralNet, &mlpnn);
+  if(status != napi_ok) return NULL;
+  
+  kill_bpenet(&neuralNet);
+  free(fileLocation);
+  
+  return mlpnn;
+}
+
+napi_value saveMLPNet(napi_env env, napi_callback_info cbinfo){
+  napi_value parameters[2], returnBool;
+  size_t paramNum = 2;
+  char* fileLocation;
+  mlp_net *neuralNet;
+  napi_status status = napi_create_int32(env, 0, &returnBool);
+  if(status != napi_ok) return returnBool;
+
+  status = napi_get_cb_info(env, cbinfo, &paramNum, parameters, NULL, NULL);
+  if(status != napi_ok) return returnBool;
+
+  status = getString(env, parameters[0], &fileLocation);
+  if(status != napi_ok) return returnBool;
+
+  neuralNet = makeCMlp_net(env, parameters[1]);
+
+  save_bpenetTxt(fileLocation, neuralNet);
+
+  status = napi_create_int32(env, 1, &returnBool);
+  if(status != napi_ok) return returnBool;
+
+  kill_bpenet(&neuralNet);
+  free(fileLocation);
+
+  return returnBool;
+}
+
+napi_value trainMLPNet(napi_env env, napi_callback_info cbinfo){
+  napi_value parameters[5], napiNeuralNetObj;
+  size_t paramNum = 5;
+  mlp_net *neuralNet;
+
+  matrix *trainIn, *trainOut, *tempMat;
+  int numEpochs;
+
+  double alphaVal;
+
+  napi_status status = napi_get_cb_info(env, cbinfo, &paramNum, parameters, NULL, NULL);
+  if (status != napi_ok) return NULL;
+  neuralNet = makeCMlp_net(env, parameters[0]);
+
+  status = napi_get_value_int32(env, parameters[1], &numEpochs);
+  if (status != napi_ok) return NULL;
+  status = napi_get_value_double(env, parameters[4], &alphaVal);
+  if (status != napi_ok) return NULL;
+
+  trainIn = makeCMatrix(env, parameters[2]);
+  trainOut = makeCMatrix(env, parameters[3]);
+
+  initmat(&tempMat, trainIn->rows, max(trainIn->cols, trainOut->cols), 0.0);
+
+  for (int i = 0; i < numEpochs; i++) {
+    mlp_train(neuralNet, trainIn, trainOut, 20, (float) alphaVal);
+    ShuffleMat(trainIn, trainOut, tempMat);
+  }
+
+  status = makeMlpnetNodeObj(env, *neuralNet, &napiNeuralNetObj);
+  if(status != napi_ok) return NULL;
+
+  kill_bpenet(&neuralNet);
+  killmat(&trainIn);
+  killmat(&trainOut);
+  killmat(&tempMat);
+
+  return napiNeuralNetObj;
+}
+
+napi_value decideMLPNet(napi_env env, napi_callback_info cbinfo){
+  napi_value output, parameters[3];
+  size_t parameterNum = 3;
+
+  mlp_net *neuralNet;
+  matrix *nninput, *nnoutput;
+  int outNodes;
+
+  napi_status status = napi_get_cb_info(env, cbinfo, &parameterNum, parameters, NULL, NULL);
+  if(status != napi_ok) return NULL;
+
+  status = napi_get_value_int32(env, parameters[2], &outNodes);
+  neuralNet = makeCMlp_net(env, parameters[0]);
+  nninput = makeCMatrix(env, parameters[1]);
+  initmat(&nnoutput, outNodes, 1, 0.0);
+
+  bpe_forward(nninput, neuralNet, &nnoutput);
+
+  status = makeMatrixNodeObj(env, nnoutput, &output);
+  if(status != napi_ok) return NULL;
+
+  kill_bpenet(&neuralNet);
+  killmat(&nninput);
+  killmat(&nnoutput);
+
+  return output;
 }
 /*Non-exported functions below here*/
 
@@ -257,7 +394,7 @@ napi_status makeMatrixNodeObj(napi_env env, matrix* mat, napi_value* matrixObj){
 }
 
 /****************************************************************************/
-/*Makes a JavaScript object from a matrix                                   */
+/*Makes a C from a JavaScript matrix                                        */
 /* {IN} env         - N-API environment context                             */
 /* {IN} mat         - N-API_Value containing the matrix object from JS      */
 /* returns Matrix*  - pointer to matrix struct made                         */
@@ -300,9 +437,14 @@ matrix* makeCMatrix(napi_env env, napi_value mat){
   return matC;
 }
 
+/****************************************************************************/
+/*Makes a JavaScript object from a matrix                                   */
+/* {IN} env             - N-API environment context                         */
+/* {IN} nn_net          - mlp_net struct containing the neural network      */
+/* {OUT}                - pointer napi_value where the object should go     */
+/****************************************************************************/
 napi_status makeMlpnetNodeObj(napi_env env, mlp_net nn_net, napi_value* mlpnetVal){
   napi_status status;
-  napi_value_mlp_net mlp_net_value;
   napi_value inw, udw, inoff, udoff, udwt, indwt, inwmel, udwmel;
   napi_value fejl1, fejl2, melres1, melres2, melres3;
   napi_value out0, out1;
@@ -379,60 +521,70 @@ napi_status makeMlpnetNodeObj(napi_env env, mlp_net nn_net, napi_value* mlpnetVa
   return napi_ok;
 }
 
+/****************************************************************************/
+/*Makes a mlp_net struct from a nodejs object                               */
+/* {IN} env         - N-API environment context                             */
+/* {IN} nn_net      - mlp_net struct containing the neural network          */
+/* returns Matrix*  - pointer to matrix struct made                         */
+/****************************************************************************/
 mlp_net* makeCMlp_net(napi_env env, napi_value nn_netVal){
   napi_status status;
-  napi_value_mlp_net mlp_netValue;
+  napi_value inw, udw, inoff, udoff, udwt, indwt, inwmel, udwmel;
+  napi_value fejl1, fejl2, melres1, melres2, melres3;
+  napi_value out0, out1;
+  napi_value numNodesIn, numNodesHiddenLayer, numNodesOut;
 
   mlp_net *nn_net = (mlp_net *) calloc(sizeof(mlp_net), 1);
 
   /*Long chain of getting properties out of NodeJS Objects :(*/
-  status = getProperty(env, nn_netVal, "inw", mlp_netValue.inw);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "udw", mlp_netValue.udw);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "fejl1", mlp_netValue.fejl1);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "fejl2", mlp_netValue.fejl2);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "indwt", mlp_netValue.indwt);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "inoff", mlp_netValue.inoff);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "inwmel", mlp_netValue.inwmel);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "melres1", mlp_netValue.melres1);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "melres2", mlp_netValue.melres2);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "melres3", mlp_netValue.melres3);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "out0", mlp_netValue.out0);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "out1", mlp_netValue.out1);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "udoff", mlp_netValue.udoff);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "udwmel", mlp_netValue.udwmel);
-  if(status == napi_ok) return NULL;
-  status = getProperty(env, nn_netVal, "udwt", mlp_netValue.udwt);
-  if(status == napi_ok) return NULL;
+
+  status = getProperty(env, nn_netVal, "inw", &inw);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "udw", &udw);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "fejl1", &fejl1);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "fejl2", &fejl2);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "indwt", &indwt);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "inoff", &inoff);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "inwmel", &inwmel);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "melres1", &melres1);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "melres2", &melres2);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "melres3", &melres3);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "out0", &out0);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "out1", &out1);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "udoff", &udoff);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "udwmel", &udwmel);
+  if(status != napi_ok) return NULL;
+  status = getProperty(env, nn_netVal, "udwt", &udwt);
+  if(status != napi_ok) return NULL;
 
   /*Transfering values into struct*/
-  nn_net->fejl1 = makeCMatrix(env, *(mlp_netValue.fejl1));
-  nn_net->fejl2 = makeCMatrix(env, *(mlp_netValue.fejl2));
-  nn_net->indwt = makeCMatrix(env, *(mlp_netValue.indwt));
-  nn_net->inoff = makeCMatrix(env, *(mlp_netValue.inoff));
-  nn_net->inw = makeCMatrix(env, *(mlp_netValue.inw));
-  nn_net->inwmel = makeCMatrix(env, *(mlp_netValue.inwmel));
-  nn_net->melres1 = makeCMatrix(env, *(mlp_netValue.melres1));
-  nn_net->melres2 = makeCMatrix(env, *(mlp_netValue.melres2));
-  nn_net->melres3 = makeCMatrix(env, *(mlp_netValue.melres3));
-  nn_net->out0 = makeCMatrix(env, *(mlp_netValue.out0));
-  nn_net->out1 = makeCMatrix(env, *(mlp_netValue.out1));
-  nn_net->udoff = makeCMatrix(env, *(mlp_netValue.udoff));
-  nn_net->udw = makeCMatrix(env, *(mlp_netValue.udw));
-  nn_net->udwmel = makeCMatrix(env, *(mlp_netValue.udwmel));
-  nn_net->udwt = makeCMatrix(env, *(mlp_netValue.udwt));
+  nn_net->fejl1 = makeCMatrix(env, fejl1);
+  nn_net->fejl2 = makeCMatrix(env, fejl2);
+  nn_net->indwt = makeCMatrix(env, indwt);
+  nn_net->inoff = makeCMatrix(env, inoff);
+  nn_net->inw = makeCMatrix(env, inw);
+  nn_net->inwmel = makeCMatrix(env, inwmel);
+  nn_net->melres1 = makeCMatrix(env, melres1);
+  nn_net->melres2 = makeCMatrix(env, melres2);
+  nn_net->melres3 = makeCMatrix(env, melres3);
+  nn_net->out0 = makeCMatrix(env, out0);
+  nn_net->out1 = makeCMatrix(env, out1);
+  nn_net->udoff = makeCMatrix(env, udoff);
+  nn_net->udw = makeCMatrix(env, udw);
+  nn_net->udwmel = makeCMatrix(env, udwmel);
+  nn_net->udwt = makeCMatrix(env, udwt);
 
   return nn_net;
 }
@@ -446,11 +598,27 @@ mlp_net* makeCMlp_net(napi_env env, napi_value nn_netVal){
 napi_status getProperty(napi_env env, napi_value obj, char *key, napi_value *value){
   napi_status status;
   napi_value keyValue;
-
+  
   status = napi_create_string_utf8(env, key, (size_t) (sizeof(char) * (strlen(key))), &keyValue);
   if(status != napi_ok) return status;
-
+  
   status = napi_get_property(env, obj, keyValue, value);
+  if(status != napi_ok) return status;
+
+  return napi_ok;
+}
+
+napi_status getString(napi_env env, napi_value stringObj, char **string){
+  size_t length;
+  napi_status status;
+
+  /*Gets the length of the string into length variable*/
+  status = napi_get_value_string_utf8(env, stringObj, NULL, 0, &length);
+  if(status != napi_ok) return status;
+
+  /*Allocates the apropriate amount and copies the JavaScript weak typed string into C typed char* */
+  *string = (char *) malloc(sizeof(char) * length+1); // +1 for \0 (string termination)
+  status = napi_get_value_string_utf8(env, stringObj, *string, length+1, NULL);
   if(status != napi_ok) return status;
 
   return napi_ok;
