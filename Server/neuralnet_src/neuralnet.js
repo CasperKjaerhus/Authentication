@@ -80,6 +80,7 @@ exports.Matrix = class {
       str += "\n";
     }
     console.log(str);
+    return this;
   }
 
   /*Gets specific element from values array*/
@@ -121,6 +122,7 @@ exports.Matrix = class {
     const obj = neuralnet.normalizeMatrixWithUext(matB, matA.getExt());
     return new exports.Matrix(obj.rows, obj.cols, obj.values, obj.rowoffset);
   }
+  
   static compare(matA, matB, range){
     for(let i = 0; i < matA.rows; i++){
       for(let j = 0; j < matA.cols; j++){
