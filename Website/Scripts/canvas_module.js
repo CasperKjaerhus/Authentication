@@ -83,6 +83,9 @@ function mousedown(rect, canvas) {
       x = e.clientX - rect.left;
       y = e.clientY - rect.top;
 
+      prevTime = currTime;
+      currTime = Date.now() - timerStart;
+      
       if (canvas.currDrawing === null || canvas.currDrawing.startedDrawing === false) {
         e.preventDefault();
         
