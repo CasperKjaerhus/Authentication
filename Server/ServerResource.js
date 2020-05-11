@@ -15,7 +15,7 @@ exports.ServerResource = class {
       }
 
       res.writeHead(200, headers);
-      res.write(fs.readFileSync(filelocation));
+      res.write(fs.readFileSync(filelocation), () => res.end());
     });
   }
 }
