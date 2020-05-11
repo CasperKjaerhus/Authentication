@@ -29,19 +29,29 @@
     const submitElem      = document.getElementById('buttonSubmit');
     const canvas          = new Canvas(canvasElem, clearElem);
 
-    submitElem.addEventListener("click", e => {
+    submitElem.addEventListener("click", async e => {
       let drawing = canvas.currDrawing;
 
-      if(drawing.xArray.length > 100)
-        exportStuff(drawing);
-
-      else if(drawing.xArray.length < 100){
+      if(drawing.xArray.length < 100){
         alert("YOU DIDNT DRAW ENOUGH");
         console.log("didnt")
         return;
       }
-      console.log("here");
-
+      exportStuff(drawing);
+      const url = "/submitkickstart";
+      const parameters = {
+        method: "POST",
+        body: JSON.stringify(drawing)
+      };
+      try{
+        const fetchResponse = await fetch(url, parameters)
+        if (fetchResponse.status > 399) { 
+          console.log('Looks like there was a problem. Status Code: ' + response.status);
+          return;
+        }
+      } catch(err) {
+        console.log('Fetch Error :-S', err);
+      };
 
     });
 

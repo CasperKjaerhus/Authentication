@@ -86,9 +86,12 @@ server.addResource(new ServerResource("GET", "/startNN/", async (req, res) => {
 }));
 /*Neuralnet api testing*/
 server.addResource(new ServerResource("POST", "/submitkickstart", async (req, res) => {
-  const requestBody = await readRequestBody();
-
-  DataHandler.addEntry(requestBody.drawing, requestBody.username);
+  if(Database.DoesUserExist("kickstart") === false){
+    Database.createUser("kickstart");
+  }
+  const requestBody = JSON.parse(await readRequestBody(req));
+  console.log(requestBody);
+  DataHandler.addEntry(requestBody, "kickstart");
 
   res.writeHead(200);
   res.end();
