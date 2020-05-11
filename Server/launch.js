@@ -51,6 +51,7 @@ server.addResource(ServerResource.Servable("../Website/Scripts/login.js", "/Scri
 server.addResource(ServerResource.Servable("../Website/Scripts/account.js", "/Scripts/account.js"));
 server.addResource(ServerResource.Servable("../Website/Scripts/utility.js", "/Scripts/utility.js"));
 server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style/index.css"));
+server.addResource(ServerResource.Servable("../Website/kickstart.html", "/kickstart"));
 
 server.start();
 
@@ -84,8 +85,14 @@ server.addResource(new ServerResource("GET", "/startNN/", async (req, res) => {
   res.end();
 }));
 /*Neuralnet api testing*/
+server.addResource(new ServerResource("POST", "/submitkickstart", async (req, res) => {
+  const requestBody = await readRequestBody();
 
+  DataHandler.addEntry(requestBody.drawing, requestBody.username);
 
+  res.writeHead(200);
+  res.end();
+}));
 
 
 

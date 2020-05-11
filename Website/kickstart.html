@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="./Style/index.css">
+  </head>
+  <body>
+    <h1>Kickstart data submition</h1>
+    <nav>
+      <a href="./login">Already have an account? Login here</a>
+    </nav>
+    <div>
+      <canvas id="drawCanvas"></canvas>
+    </div>
+    <div>
+      <button id="buttonClear">Clear</button>
+      <button id="buttonSubmit">Submit</button>
+      <span id="counter" value="counter"></span>
+    </div>
+  </body>
+  <script type="module">
+
+    import {default as Canvas, Drawing} from './Scripts/canvas_module.js';
+    import {default as exportStuff} from './Scripts/utility.js';
+    
+    const canvasElem      = document.getElementById('drawCanvas');
+    const clearElem       = document.getElementById('buttonClear');
+    const submitElem      = document.getElementById('buttonSubmit');
+    const canvas          = new Canvas(canvasElem, clearElem);
+
+    submitElem.addEventListener("click", e => {
+      let drawing = canvas.currDrawing;
+
+      if(drawing.xArray.length > 100)
+        exportStuff(drawing);
+
+      else if(drawing.xArray.length < 100){
+        alert("YOU DIDNT DRAW ENOUGH");
+        console.log("didnt")
+        return;
+      }
+      console.log("here");
+
+
+    });
+
+  </script>
+</html>
