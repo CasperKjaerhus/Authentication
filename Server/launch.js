@@ -54,7 +54,7 @@ server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style
 
 server.start();
 
-server.addResource(new ServerResource("GET", "/startNN", async (req, res) => {
+server.addResource(new ServerResource("GET", "/startnn", async (req, res) => {
   const inLearningMat = neuralnet.loadMatrix("./data/Test/inLearning.txt");
   const outLearningMat = neuralnet.loadMatrix("./data/Test/outLearning.txt");
 
