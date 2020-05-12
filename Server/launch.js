@@ -13,7 +13,7 @@ const server = new Server(8000);
 /*Resource to create an account from the client */
 server.addResource(new ServerResource("POST", "/createaccount/", async (req, res) => {
   if (Database.DoesUserExist("wrongdrawings") === false){
-    Database.createUser("wrongsdrawings");
+    Database.createUser("wrongdrawings");
   }
   const body = JSON.parse(await readRequestBody(req));
   if (Database.DoesUserExist(body.username) === false) {
