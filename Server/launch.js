@@ -19,7 +19,7 @@ server.addResource(new ServerResource("POST", "/createaccount/", async (req, res
   if (Database.DoesUserExist(body.username) === false) {
     res.writeHead(200);
     Database.createUser(body.username);
-    
+
     for (let drawing of body.drawings) {
       DataHandler.addEntry(drawing, body.username);
     }

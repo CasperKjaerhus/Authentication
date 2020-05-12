@@ -38,7 +38,7 @@ export class Drawing {
 
   velocity(currTime, prevTime, x1, x2, y1, y2) {
     const distance = euclideanDist(x1, x2, y1, y2);
-    return distance/(currTime - prevTime + Number.MIN_VALUE);
+    return distance/(currTime - prevTime + 0.0001);
   }
 
   // Clears the object arrays
