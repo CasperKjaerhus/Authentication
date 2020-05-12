@@ -116,6 +116,9 @@ server.addResource(new ServerResource("POST", "/submitkickstart", async (req, re
   if(Database.DoesUserExist("kickstart") === false){
     Database.createUser("kickstart");
   }
+  if (Database.DoesUserExist("wrongdrawings") === false){
+    Database.createUser("wrongdrawings");
+  }
   const requestBody = JSON.parse(await readRequestBody(req));
   console.log(`recieved drawing with xArray.length: ${requestBody.xArray.length} yArray.length: ${requestBody.yArray.length} velocities.length: ${requestBody.velocities.length} gradients.length: ${requestBody.gradients.length}`);
   DataHandler.addEntry(requestBody, "kickstart");
