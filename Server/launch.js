@@ -37,7 +37,7 @@ server.addResource(new ServerResource("POST", "/createaccount/", async (req, res
     let learningInput = neuralnet.loadMatrix(`./data/${body.username}/NNData`);
     let learningOutput = new neuralnet.Matrix(learningInput.rows, 1).fill(1);
     
-    learningInput = learningInput.addMatrix(wrongDrawings);
+    learningInput = learningInput.addMatrix(wrongDrawings).normalize();
     learningOutput = learningOutput.addMatrix(wrongDrawingOutput);
 
     const personalNeuralNetwork = new neuralnet.MLP_Net(learningInput.cols, 16, 1).gaussinit();
@@ -58,9 +58,9 @@ server.addResource(new ServerResource("POST", "/createaccount/", async (req, res
 }));
 
 server.addResource(new ServerResource("POST", "/submit", async (req,res) => {
-  const requestBody = await readRequestBody(req);
+  const requestBody = JSON.parse(await readRequestBody(req));
 
-  if(Database.DoesUserExist(req.username) === true){
+  if(Database.DoesUserExist(requestBody.username) === true){
     const personalNeuralNetwork = neuralnet.loadMLPNet(`./data/${requestBody.username}/`);
 
     const input = new neuralnet.Matrix(1, 400);
@@ -88,6 +88,7 @@ server.addResource(new ServerResource("POST", "/submit", async (req,res) => {
     }
 
     const output = personalNeuralNetwork.decide(input);
+    console.log(output.print());
     if(output.getElement(1,1) > 0.8){
       res.writeHead(200);
       res.write("LOGGED IN");
