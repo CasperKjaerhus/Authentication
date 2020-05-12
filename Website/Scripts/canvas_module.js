@@ -38,7 +38,7 @@ export class Drawing {
 
   velocity(currTime, prevTime, x1, x2, y1, y2) {
     const distance = euclideanDist(x1, x2, y1, y2);
-    return distance/(currTime-prevTime);
+    return distance/(currTime - prevTime + Number.MIN_VALUE);
   }
 
   // Clears the object arrays
@@ -84,7 +84,6 @@ function mousedown(rect, canvas) {
       x = e.clientX - rect.left;
       y = e.clientY - rect.top;
 
-      prevTime = currTime;
       currTime = Date.now() - timerStart;
       
       if (canvas.currDrawing === null || canvas.currDrawing.startedDrawing === false) {
@@ -114,6 +113,7 @@ function mousemove(rect, canvas) {
 
       grad = canvas.currDrawing.gradient(canvas.currDrawing.xArray.length-1, canvas.currDrawing.yArray.length-1, x, y);
       velocity = canvas.currDrawing.velocity(currTime, prevTime, canvas.currDrawing.xArray.length-1, canvas.currDrawing.yArray.length-1, x, y);
+      
       //Below is the code for correcting the position of the drawing
       smallestX = smallestX > x ? x : smallestX;
       smallestY = smallestY > y ? y : smallestY;
