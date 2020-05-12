@@ -7,7 +7,7 @@ export default function exportStuff(drawing){
 
   //Init number of groups and subArraySize for each group
   const groups = 100;
-  const ceilGroups = testArray.length % groups;
+  const ceilGroups = drawing.xArray.length % groups;
   const ceilArraySize = Math.ceil(drawing.xArray.length/groups);
   const floorArraySize = Math.floor(drawing.xArray.length/groups);
 
