@@ -1,6 +1,7 @@
 'use strict';
 
-import Canvas from './canvas_module.js';
+import {default as Canvas, Drawing} from './canvas_module.js';
+import {default as exportStuff} from './utility.js';;
 
 const userElem        = document.getElementById('username');
 const canvasElem      = document.getElementById('drawCanvas');
