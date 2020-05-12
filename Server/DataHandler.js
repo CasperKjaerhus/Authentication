@@ -16,7 +16,7 @@ exports.DataHandler = class {
           }
         });
       } else {
-        fs.appendFile("./data/WrongDrawings/drawings", data, (err) => {
+        fs.appendFile("./data/wrongdrawings/drawings", data, (err) => {
           if (err) {
             console.log(err);
           }
