@@ -67,22 +67,22 @@ server.addResource(new ServerResource("POST", "/submit", async (req,res) => {
 
     /*Input drawing data into matrix*/
     let j = 1;
-    for(let x of requestBody.drawings.xArray){
+    for(let x of requestBody.drawing.xArray){
       input.setElement(1, j, x);
       j += 4;
     }
     j = 2;
-    for(let y of requestBody.drawings.yArray){
+    for(let y of requestBody.drawing.yArray){
       input.setElement(1, j, y);
       j += 4;
     }
     j = 3;
-    for(let velocity of requestBody.drawings.velocities){
+    for(let velocity of requestBody.drawing.velocities){
       input.setElement(1, j, velocity);
       j += 4;
     }
     j = 4;
-    for(let gradient of requestBody.drawings.gradients){
+    for(let gradient of requestBody.drawing.gradients){
       input.setElement(1, j, gradient);
       j += 4;
     }
