@@ -13,6 +13,7 @@ let currTime = 0;
 export class Drawing {
   constructor(x, y, velocity, gradient) {
     this.startedDrawing = false;
+    this.correctDrawing = null;
     this.xArray = [x];
     this.yArray = [y];
     this.velocities = [velocity];
@@ -45,7 +46,7 @@ export class Drawing {
     canvas.context.clearRect(0, 0, canvas.element.width, canvas.element.height);
     timerStart = Date.now();
     for (let property in this) {
-      if(property !== 'startedDrawing') {
+      if(property !== 'startedDrawing' && property !== 'correctDrawing') {
         this[property].length = 0;
       }
     }

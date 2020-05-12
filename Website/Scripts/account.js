@@ -11,36 +11,36 @@ const canvas          = new Canvas(canvasElem, clearElem);
 
 
 let data = [];
-let counter = 1;
-let done = 2;
+let counter = 0;
+let numCorrect = 3;
+let done = 2*numCorrect;
 counterElem.innerHTML=`${counter}/${done}`;
 
 //ToDo: Handle succes and fail cases for response
 buttonNext.addEventListener('click', e => {
   let drawing = canvas.currDrawing;
-  if (counter < done) {
+
+  /* Check if drawing consist of enough raw-data/data points to be represented by 100 values
+     and ready data for export and copy into data array */
+  if (drawing === null || drawing.xArray.length < 100) {
+    alert("Too few datapoints! Draw more!");
+  } else {  
+    drawing.correctDrawing = counter < numCorrect ? 1 : 0;
+    exportStuff(drawing);
+    data.push(JSON.parse(JSON.stringify(drawing)));
+    counterElem.innerHTML=`${counter = counter < done ? counter+1 : done}/${done}`;
+    cleanUp(drawing);
+  }
+
+  if (counter === done) {
+    buttonNext.disabled = true;
+    cleanUp(drawing);
 
     //Ready data for export and copy into data array
     exportStuff(drawing);
     data.push(JSON.parse(JSON.stringify(drawing)));
 
-    //Increment counter and html-counter. Also clear canvas and enable next drawing
-    counter++;
-    counterElem.innerHTML=`${counter}/${done}`;
-    drawing.startedDrawing = false;
-    drawing.clear(canvas);
-
-  } else if (counter === done) {
-    //Final packing of drawing data into json object
-    exportStuff(drawing);
-    data.push(JSON.parse(JSON.stringify(drawing)));
-
     let drawingData = JSON.stringify({username: validate.value, drawings: data});
-
-    //Clear canvas
-    counter++;
-    drawing.startedDrawing = false;
-    drawing.clear(canvas);
 
     // Setup url and parameters (method & body) for fetch call
     const url = "/createaccount/";
@@ -56,6 +56,8 @@ buttonNext.addEventListener('click', e => {
           if (response.status > 399) { 
             console.log('Looks like there was a problem. Status Code: ' + response.status);
             return;
+          } else if (response.status <= 399) {
+            alert("SUCCES!");
           }
         }
       )
@@ -63,11 +65,9 @@ buttonNext.addEventListener('click', e => {
         console.log('Fetch Error :-S', err);
       });
   }
-
 });
 
 /* TODO: 
-   Server-side: Check for existing usernames in the database/filestructure, and send corresponding response on validation check
    Client-side: Handle response
 */
 validate.addEventListener('change', e => {
@@ -95,6 +95,11 @@ validate.addEventListener('change', e => {
     .catch(function(err) {
       console.log('Fetch Error: ', err);
     });
-
-
 });
+
+
+function cleanUp(drawing) {
+    //Clear canvas and enable next drawing
+    drawing.startedDrawing = false;
+    drawing.clear(canvas);
+}

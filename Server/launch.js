@@ -22,7 +22,7 @@ server.addResource(new ServerResource("POST", "/createaccount/", (req, res) => {
         DataHandler.addEntry(drawing, body.username);
       }
       res.end();
-    }else {
+    } else {
       res.writeHead(403)
       res.write("taken", () => res.end()); 
     }
@@ -38,7 +38,6 @@ server.addResource(new ServerResource("POST", "/checkusername/", (req, res) => {
     }else {
       res.write("not taken", () => res.end());
     }
-    
   });
 }));
 

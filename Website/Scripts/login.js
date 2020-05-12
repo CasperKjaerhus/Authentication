@@ -2,28 +2,25 @@
 
 import Canvas from './canvas_module.js';
 
-const formElem        = document.getElementById('loginForm');
+const userElem        = document.getElementById('username');
 const canvasElem      = document.getElementById('drawCanvas');
 const clearElem       = document.getElementById('buttonClear');
 const submitElem      = document.getElementById('buttonSubmit');
 const canvas          = new Canvas(canvasElem, clearElem);
 
-let drawing = canvas.currDrawing;
-
 /* Button for submitting draw data */
 submitElem.addEventListener('click', e =>  {
-  drawing.exportStuff();
+  let drawing = canvas.currDrawing;
+
+  //Final packing of drawing data into json object
+  exportStuff(drawing);
+
+  let drawingData = JSON.stringify({username: userElem.value, drawing: drawing});
 
   const url = "/submit/";
-
-  let data = new FormData(formElem);
-  data.append(JSON.stringify(drawing));
-  
-  drawing.clear(canvas);
-
   const parameters = {
     method: "POST",
-    body: data
+    body: drawingData
   };
 
   fetch(url, parameters)
@@ -38,4 +35,8 @@ submitElem.addEventListener('click', e =>  {
     .catch(function(err) {
       console.log('Fetch Error :-S', err);
     });
+
+  //Clear canvas
+  drawing.startedDrawing = false;
+  drawing.clear(canvas);
 });
