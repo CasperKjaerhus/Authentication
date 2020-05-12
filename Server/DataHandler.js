@@ -8,16 +8,23 @@ exports.DataHandler = class {
   static async addEntry(entry, username) {
     let data = `${JSONToData(entry)}\n`;
     let fileLocation = `./data/${username}/drawings`;
-    if(Database.DoesUserExist(username)){
-      fs.appendFile(fileLocation, data, (err) => {
-        if(err){
-          console.log(err);
-        }
-      });
+    if (Database.DoesUserExist(username)) {
+      if (entry.correctDrawing === true) {
+        fs.appendFile(fileLocation, data, (err) => {
+          if (err) {
+            console.log(err);
+          }
+        });
+      } else {
+        fs.appendFile("./data/WrongDrawings/drawings", data, (err) => {
+          if (err) {
+            console.log(err);
+          }
+        });
+      }
     } else {
       console.log(`Error: ${username} does not exist!`);
     }
-
   }
 
   static async prepareNNData(username, coloumns){
@@ -25,8 +32,17 @@ exports.DataHandler = class {
     
     /*receives the amount of rows/lines and uses this alongside the amount of coloums to write the start of the NNData file*/
     await CountRows(`./data/${username}/drawings`).then((val) => rows = val);
-
-    fs.appendFile(`./data/${username}/NNData`, `${rows} ${coloumns}\n`, (err) => console.log(err));
+    /*Deletes contents of NNData if there is one*/
+    if(fs.existsSync(`./data/${username}/NNData`) === true){
+      fs.truncateSync(`./data/${username}/NNData`, 0);
+    }
+    
+    /*Starts appending*/
+    fs.appendFile(`./data/${username}/NNData`, `${rows} ${coloumns}\n`, (err) => {
+      if(err){
+        console.log(err)
+      }
+    });
     
     
     const prom = new Promise((resolve, reject) => {
@@ -36,7 +52,11 @@ exports.DataHandler = class {
       });
       /*Line event fires when a line is read from the file, and is used to copy to another file*/
       readlineInterface.on("line", (input) => {
-        fs.appendFile(`./data/${username}/NNData`, input+"\n", (err) => console.log(err))
+        fs.appendFile(`./data/${username}/NNData`, input+"\n", (err) => {
+          if(err){
+            console.log(err);
+          }
+        });
       });
       
       /*Close event fires upon end of file and is used to delete the last new line and resolves the promise*/
