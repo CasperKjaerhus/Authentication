@@ -14,55 +14,27 @@ exports.Server = class {
 
   start() {
     http.createServer((req, res) => {
-      console.log(`REQUEST RECIEVED:\n\tmethod: ${req.method}\n\turl: ${req.url}`);
 
-      switch (req.method) {
-        case "GET":
-          /* The resources are filtered so that only the valid resources are being used
-             With the list of resources, the url's of the different resources are compared to the requested url, so the correct resource will be used */
-          for (let resource of this.resources) {
-            if (req.url === resource.url && req.method === resource.method) {
-              console.log(`FOUND RESOURCE MATCH: ${resource}`);
-              
-              /*The resources callback is then used to figure out the appropriate response*/
-              resource.callback(req, res, resource);
+      console.log(`REQUEST RECIEVED: {method: '${req.method}' url: '${req.url}}'`);
+      let resourceFound = false;
+      /* The "for-loop" iterates over the resource array, and chooses the one, which is requested. */
 
-              res.end();
-              return;
-            }
-          }
-          break;
-
-          
-        case "POST":
-         
-          for (let resource of this.resources) {
-            if (req.url === resource.url && req.method === resource.method) {
-              console.log(`FOUND RESOURCE MATCH: ${resource}`);
-             
-              fs.writeFileSync(resource.fileLocation, req.body);
-
-
-              
-              /*The resources callback is then used to figure out the appropriate response*/
-              resource.callback(req, res, resource);
-
-              res.end();
-              return;
-            }
-          }
-          
-          break;
-
-
-        default:  
-          
-          res.writeHead(404);
-          //res.write(fs.readFileSync(404_PAGE_FILE_LOCATION));  TODO: 404 webpage in case 
-          res.end();
-          break;
+      for (let resource of this.resources) {
+        if (req.method === resource.method && req.url === resource.url) {
+          resourceFound = true;
+            
+          /*Callback determines what resource funktion is used (if a resource exists under launch.js the function of said resource is used)*/
+          resource.callback(req, res, resource);
+        }
+      }     
+      
+      if (!resourceFound) {
+        res.writeHead(404);
+        //res.write(fs.readFileSync(404_PAGE_FILE_LOCATION));  TODO: 404 webpage in case 
+        res.end();
       }
       
+
     }).listen(this.port);
     console.log("Session started!");
   }

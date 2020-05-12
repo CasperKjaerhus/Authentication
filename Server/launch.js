@@ -1,34 +1,114 @@
-const {Server} = require("./server.js");
-const {ServerResource} = require("./ServerResource.js");
+const Server = require("./server.js").Server;
+const ServerResource = require("./ServerResource.js").ServerResource;
+const DataHandler = require("./DataHandler.js").DataHandler;
+const Database = require("./Database.js").Database;
+const http = require("http");
 const fs = require("fs");
+const {testServer} = require("./Test.js");
+const neuralnet = require("./neuralnet_src");
+
 
 const server = new Server(8000);
 
-function serve(req, res, resource){
-    res.writeHead(200);
-    res.write(fs.readFileSync(resource.fileLocation));
-}
+/*Resource to create an account from the client */
+server.addResource(new ServerResource("POST", "/createaccount/", (req, res) => {
+  readRequestBody(req).then((val) => {
+    const body = JSON.parse(val);
+    if(Database.DoesUserExist(body.username) === false){
+      res.writeHead(200);
+      Database.createUser(body.username);
 
-server.addResource(new ServerResource("GET", "../Website/index.html", "/", (req, res, resource) => {
-    /* Telling the server that there exist a resource such as (a get request, with FileLocation "./index.html"), with URL "/") Below is what the server should respond,
-     * when recieving the GET request.*/ 
-    /* Indicates that the Server are expexted to recieve a GET request from client, and respond with respondcode "200" and deliver the requested file */
-    res.writeHead(200);
-    res.write(fs.readFileSync(resource.fileLocation));
-
+      for(let drawing of body.drawings){
+        DataHandler.addEntry(drawing, body.username);
+      }
+      res.end();
+    }else {
+      res.writeHead(403)
+      res.write("taken", () => res.end()); 
+    }
+  });
 }));
-// const database = new Datastore('database.db');
-// database.loadDatabase();, hvis du genstarter serveren så ja, men det kan du fixe.
 
-server.addResource(new ServerResource("POST", "./submit/database.data", "/submit/", (req, res, resource) => {
-
+/*Resource to check username availability */
+server.addResource(new ServerResource("POST", "/checkusername/", (req, res) => {
+  readRequestBody(req).then((val) => {
     res.writeHead(200);
-
-    //Dino test (om filen er modtaget)
-    //res.write(fs.readFileSync(resource.fileLocation));
-
+    if(Database.DoesUserExist(val) === true){
+      res.write("taken", () => res.end());
+    }else {
+      res.write("not taken", () => res.end());
+    }
+    
+  });
 }));
-server.addResource(new ServerResource("GET", "../Website/Scripts/canvas.js", "/Scripts/canvas.js", serve));
-server.addResource(new ServerResource("GET", "../Website/Style/index.css", "/Style/index.css", serve));
+
+/*Adding pages and scripts that the client can load*/
+server.addResource(ServerResource.Servable("../Website/index.html", "/"));
+server.addResource(ServerResource.Servable("../Website/login.html", "/login"));
+server.addResource(ServerResource.Servable("../Website/account.html", "/account"));
+server.addResource(ServerResource.Servable("../Website/Scripts/canvas_module.js", "/Scripts/canvas_module.js"));
+server.addResource(ServerResource.Servable("../Website/Scripts/login.js", "/Scripts/login.js"));
+server.addResource(ServerResource.Servable("../Website/Scripts/account.js", "/Scripts/account.js"));
+server.addResource(ServerResource.Servable("../Website/Scripts/utility.js", "/Scripts/utility.js"));
+server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style/index.css"));
+server.addResource(ServerResource.Servable("../Website/kickstart.html", "/kickstart"));
 
 server.start();
+
+server.addResource(new ServerResource("GET", "/startnn", async (req, res) => {
+  const inLearningMat = neuralnet.loadMatrix("./data/Test/inLearning.txt");
+  const outLearningMat = neuralnet.loadMatrix("./data/Test/outLearning.txt");
+
+  const inLearningMatNorm = inLearningMat.normalize();
+  const inTest = neuralnet.loadMatrix("./data/Test/inTst.txt").normalizeThrough(inLearningMat);
+
+  const outTest = neuralnet.loadMatrix("./data/Test/outTst.txt");
+
+  const neuralnetwork = new neuralnet.MLP_Net(inLearningMat.cols, 6, outLearningMat.cols, 0.0, 0.4).gaussinit();
+
+  console.log("Training...");
+  await neuralnetwork.train(10000, inLearningMatNorm, outLearningMat, 0.02);
+  console.log("finished training!");
+  let numberOfErrors = 0;
+
+  for(let i = 1; i <= inTest.rows; i++){
+
+    const valueMat = neuralnetwork.decide(inTest.getRow(i));
+
+    if(neuralnet.Matrix.compare(valueMat, outTest.getRow(i), 0.2) === false){
+      numberOfErrors++;
+    }
+  }
+
+  res.writeHead(200);
+  res.write("Number of errors: " + numberOfErrors);
+  res.end();
+}));
+/*Neuralnet api testing*/
+server.addResource(new ServerResource("POST", "/submitkickstart", async (req, res) => {
+  if(Database.DoesUserExist("kickstart") === false){
+    Database.createUser("kickstart");
+  }
+  const requestBody = JSON.parse(await readRequestBody(req));
+  console.log(`recieved drawing with xarray.length: ${requestBody.xArray.length} yArray.length: ${requestBody.yArray.length} velocities.length: ${requestBody.velocities.length} gradients.length: ${requestBody.gradients.length}`);
+  DataHandler.addEntry(requestBody, "kickstart");
+
+  res.writeHead(200);
+  res.end();
+}));
+
+
+//testServer(); // Enable this for testing! :)
+
+/* Function that resolves to clientrequest body */
+function readRequestBody(req){
+  return new Promise((resolve, reject) => {
+    let reqBody = '';
+    req.on("data", (chunk) => {
+      reqBody += chunk;
+    });
+    req.on("end", () => {
+      resolve(reqBody);
+    });
+  })
+}
