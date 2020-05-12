@@ -24,7 +24,7 @@ buttonNext.addEventListener('click', e => {
      and ready data for export and copy into data array */
   if (drawing === null || drawing.xArray.length < 100) {
     alert("Too few datapoints! Draw more!");
-  } else {  
+  } else if (counter < done) {  
     drawing.correctDrawing = counter < numCorrect ? true : false;
     exportStuff(drawing);
     data.push(JSON.parse(JSON.stringify(drawing)));
@@ -34,11 +34,6 @@ buttonNext.addEventListener('click', e => {
 
   if (counter === done) {
     buttonNext.disabled = true;
-    cleanUp(drawing);
-
-    //Ready data for export and copy into data array
-    exportStuff(drawing);
-    data.push(JSON.parse(JSON.stringify(drawing)));
 
     let drawingData = JSON.stringify({username: validate.value, drawings: data});
 
