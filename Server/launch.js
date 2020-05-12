@@ -11,22 +11,50 @@ const neuralnet = require("./neuralnet_src");
 const server = new Server(8000);
 
 /*Resource to create an account from the client */
-server.addResource(new ServerResource("POST", "/createaccount/", (req, res) => {
-  readRequestBody(req).then((val) => {
-    const body = JSON.parse(val);
-    if(Database.DoesUserExist(body.username) === false){
-      res.writeHead(200);
-      Database.createUser(body.username);
+server.addResource(new ServerResource("POST", "/createaccount/", async (req, res) => {
+  if (Database.DoesUserExist("wrongdrawings") === false){
+    Database.createUser("wrongsdrawings");
+  }
+  const body = JSON.parse(await readRequestBody(req));
+  if (Database.DoesUserExist(body.username) === false) {
+    res.writeHead(200);
+    Database.createUser(body.username);
 
-      for(let drawing of body.drawings){
-        DataHandler.addEntry(drawing, body.username);
-      }
-      res.end();
-    }else {
-      res.writeHead(403)
-      res.write("taken", () => res.end()); 
+    for (let drawing of body.drawings) {
+      DataHandler.addEntry(drawing, body.username);
     }
-  });
+
+    await DataHandler.prepareNNData(body.username, 400);
+    await DataHandler.prepareNNData("wrongdrawings", 400);
+
+    const wrongDrawings = neuralnet.loadMatrix("./data/wrongdrawings/NNData");
+    const wrongDrawingOutput = new neuralnet.Matrix(wrongDrawings.rows, 1).fill(0);
+
+    let learningInput = neuralnet.loadMatrix(`./data/${body.username}/NNData`);
+    let learningOutput = new neuralnet.Matrix(learningInput.rows, 1).fill(1);
+    
+    
+    learningInput = learningInput.addMatrix(wrongDrawings);
+    learningOutput = learningOutput.addMatrix(wrongDrawingOutput);
+
+    console.log(learningInput.cols);
+    console.log(learningOutput.cols);
+
+    const personalNeuralNetwork = new neuralnet.MLP_Net(learningInput.cols, 16, 1).gaussinit();
+
+    console.log(`Training ${body.username} personal neural network`);
+
+    await personalNeuralNetwork.train(1000, learningInput, learningOutput, 0.02);
+
+    console.log(`finished training ${body.username}'s personal network!`);
+
+    personalNeuralNetwork.saveToFile(`./data/${body.username}/`);
+
+    res.end();
+  } else {
+    res.writeHead(403)
+    res.write("taken", () => res.end()); 
+  }
 }));
 
 /*Resource to check username availability */
@@ -90,7 +118,7 @@ server.addResource(new ServerResource("POST", "/submitkickstart", async (req, re
     Database.createUser("kickstart");
   }
   const requestBody = JSON.parse(await readRequestBody(req));
-  console.log(`recieved drawing with xarray.length: ${requestBody.xArray.length} yArray.length: ${requestBody.yArray.length} velocities.length: ${requestBody.velocities.length} gradients.length: ${requestBody.gradients.length}`);
+  console.log(`recieved drawing with xArray.length: ${requestBody.xArray.length} yArray.length: ${requestBody.yArray.length} velocities.length: ${requestBody.velocities.length} gradients.length: ${requestBody.gradients.length}`);
   DataHandler.addEntry(requestBody, "kickstart");
 
   res.writeHead(200);
