@@ -63,7 +63,7 @@ server.addResource(new ServerResource("POST", "/submit", async (req,res) => {
   if(Database.DoesUserExist(requestBody.username) === true){
     const personalNeuralNetwork = neuralnet.loadMLPNet(`./data/${requestBody.username}/`);
 
-    const input = new neuralnet.Matrix(1, 400);
+    let input = new neuralnet.Matrix(1, 400);
 
     /*Input drawing data into matrix*/
     let j = 1;
@@ -86,9 +86,15 @@ server.addResource(new ServerResource("POST", "/submit", async (req,res) => {
       input.setElement(1, j, gradient);
       j += 4;
     }
+    const wrongDrawings = neuralnet.loadMatrix("./data/wrongdrawings/NNData");
+
+    input = input.normalizeThrough(wrongDrawings);
 
     const output = personalNeuralNetwork.decide(input);
-    console.log(output.print());
+
+    input.print();
+    output.print();
+
     if(output.getElement(1,1) > 0.8){
       res.writeHead(200);
       res.write("LOGGED IN");
