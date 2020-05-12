@@ -57,6 +57,55 @@ server.addResource(new ServerResource("POST", "/createaccount/", async (req, res
   }
 }));
 
+server.addResource(new ServerResource("POST", "/submit", async (req,res) => {
+  const requestBody = await readRequestBody(req);
+
+  if(Database.DoesUserExist(req.username) === true){
+    const personalNeuralNetwork = neuralnet.loadMLPNet(`./data/${requestBody.username}/`);
+
+    const input = new neuralnet.Matrix(1, 400);
+
+    /*Input drawing data into matrix*/
+    let j = 1;
+    for(let x of requestBody.drawings.xArray){
+      input.setElement(1, j, x);
+      j += 4;
+    }
+    j = 2;
+    for(let y of requestBody.drawings.yArray){
+      input.setElement(1, j, y);
+      j += 4;
+    }
+    j = 3;
+    for(let velocity of requestBody.drawings.velocities){
+      input.setElement(1, j, velocity);
+      j += 4;
+    }
+    j = 4;
+    for(let gradient of requestBody.drawings.gradients){
+      input.setElement(1, j, gradient);
+      j += 4;
+    }
+
+    const output = personalNeuralNetwork.decide(input);
+    if(output.getElement(1,1) > 0.8){
+      res.writeHead(200);
+      res.write("LOGGED IN");
+      res.end();
+    } else {
+      res.writeHead(403);
+      res.write("Invalid login");
+      res.end();
+    }
+
+  } else {
+    res.writeHead(403);
+    res.write("Invalid login");
+    res.end();
+  }
+
+}));
+
 /*Resource to check username availability */
 server.addResource(new ServerResource("POST", "/checkusername/", (req, res) => {
   readRequestBody(req).then((val) => {
