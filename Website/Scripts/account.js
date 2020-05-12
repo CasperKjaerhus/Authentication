@@ -25,7 +25,7 @@ buttonNext.addEventListener('click', e => {
   if (drawing === null || drawing.xArray.length < 100) {
     alert("Too few datapoints! Draw more!");
   } else {  
-    drawing.correctDrawing = counter < numCorrect ? 1 : 0;
+    drawing.correctDrawing = counter < numCorrect ? true : false;
     exportStuff(drawing);
     data.push(JSON.parse(JSON.stringify(drawing)));
     counterElem.innerHTML=`${counter = counter < done ? counter+1 : done}/${done}`;
