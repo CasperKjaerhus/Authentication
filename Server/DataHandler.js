@@ -97,7 +97,6 @@ async function CountRows(fileLocation) {
     });
 
     readlineInterface.on("line", (input) => {
-      console.log(linenum);
       linenum++;
     });
     
