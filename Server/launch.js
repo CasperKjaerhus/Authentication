@@ -51,6 +51,7 @@ server.addResource(ServerResource.Servable("../Website/Scripts/login.js", "/Scri
 server.addResource(ServerResource.Servable("../Website/Scripts/account.js", "/Scripts/account.js"));
 server.addResource(ServerResource.Servable("../Website/Scripts/utility.js", "/Scripts/utility.js"));
 server.addResource(ServerResource.Servable("../Website/Style/index.css", "/Style/index.css"));
+server.addResource(ServerResource.Servable("../Website/kickstart.html", "/kickstart"));
 
 server.start();
 
@@ -84,10 +85,17 @@ server.addResource(new ServerResource("GET", "/startnn", async (req, res) => {
   res.end();
 }));
 /*Neuralnet api testing*/
+server.addResource(new ServerResource("POST", "/submitkickstart", async (req, res) => {
+  if(Database.DoesUserExist("kickstart") === false){
+    Database.createUser("kickstart");
+  }
+  const requestBody = JSON.parse(await readRequestBody(req));
+  console.log(`recieved drawing with xarray.length: ${requestBody.xArray.length} yArray.length: ${requestBody.yArray.length} velocities.length: ${requestBody.velocities.length} gradients.length: ${requestBody.gradients.length}`);
+  DataHandler.addEntry(requestBody, "kickstart");
 
-
-
-
+  res.writeHead(200);
+  res.end();
+}));
 
 
 //testServer(); // Enable this for testing! :)
