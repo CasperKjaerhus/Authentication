@@ -29,6 +29,8 @@ submitElem.addEventListener('click', e =>  {
         if (response.status > 399) { 
           console.log('Looks like there was a problem. Status Code: ' + response.status);
           return;
+        } else if (response.status === 200) {
+          alert("Autenticated!");
         }
       }
     )
