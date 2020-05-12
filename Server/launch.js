@@ -10,6 +10,10 @@ const neuralnet = require("./neuralnet_src");
 
 const server = new Server(8000);
 
+if(fs.existsSync("./data") === false){
+  fs.mkdirSync(`./data`);
+}
+
 /*Resource to create an account from the client */
 server.addResource(new ServerResource("POST", "/createaccount/", async (req, res) => {
   if (Database.DoesUserExist("wrongdrawings") === false){
