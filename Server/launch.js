@@ -19,7 +19,7 @@ server.addResource(new ServerResource("POST", "/createaccount/", async (req, res
   if (Database.DoesUserExist(body.username) === false) {
     res.writeHead(200);
     Database.createUser(body.username);
-
+    
     for (let drawing of body.drawings) {
       DataHandler.addEntry(drawing, body.username);
     }
@@ -33,12 +33,8 @@ server.addResource(new ServerResource("POST", "/createaccount/", async (req, res
     let learningInput = neuralnet.loadMatrix(`./data/${body.username}/NNData`);
     let learningOutput = new neuralnet.Matrix(learningInput.rows, 1).fill(1);
     
-    
     learningInput = learningInput.addMatrix(wrongDrawings);
     learningOutput = learningOutput.addMatrix(wrongDrawingOutput);
-
-    console.log(learningInput.cols);
-    console.log(learningOutput.cols);
 
     const personalNeuralNetwork = new neuralnet.MLP_Net(learningInput.cols, 16, 1).gaussinit();
 
