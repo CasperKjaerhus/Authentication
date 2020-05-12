@@ -66,7 +66,6 @@ server.addResource(new ServerResource("POST", "/checkusername/", (req, res) => {
     }else {
       res.write("not taken", () => res.end());
     }
-    
   });
 }));
 

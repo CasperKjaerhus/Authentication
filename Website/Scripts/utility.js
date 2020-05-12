@@ -17,7 +17,7 @@ export default function exportStuff(drawing){
 
   for (let property in drawing) { 
 
-    if (property !== 'startedDrawing') {
+    if (property !== 'startedDrawing' && property !== 'correctDrawing') {
 
       for (let i = 0; i < groups; i++) {
         
@@ -29,7 +29,7 @@ export default function exportStuff(drawing){
       }
     }
   }
-  console.log(`done:  arrayLength = ${drawing.xArray.length}\n xArray: ${drawing.xArray[drawing.xArray.length-3]}\n${drawing.xArray[drawing.xArray.length-2]}\n${drawing.xArray[drawing.xArray.length-1]}\n`)
+  console.log(`done:  arrayLength = ${drawing.xArray.length}\n ${drawing.correctDrawing}`)
 }
 
 function averageReduce(array, i, subArraySize) {
