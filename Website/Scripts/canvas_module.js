@@ -43,7 +43,7 @@ export class Drawing {
   // Clears the object arrays
   clear(canvas) {
     canvas.context.clearRect(0, 0, canvas.element.width, canvas.element.height);
-
+    timerStart = Date.now();
     for (let property in this) {
       if(property !== 'startedDrawing') {
         this[property].length = 0;
@@ -83,6 +83,9 @@ function mousedown(rect, canvas) {
       x = e.clientX - rect.left;
       y = e.clientY - rect.top;
 
+      prevTime = currTime;
+      currTime = Date.now() - timerStart;
+      
       if (canvas.currDrawing === null || canvas.currDrawing.startedDrawing === false) {
         e.preventDefault();
         
@@ -137,5 +140,5 @@ function clearEventListener(canvas) {
 };
 
 function euclideanDist(x1, x2, y1, y2){
-  return Math.sqrt((x1^2+x2^2+y1^2+y2^2));
+  return Math.sqrt((x1**2+x2**2+y1**2+y2**2));
 }

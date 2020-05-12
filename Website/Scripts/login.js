@@ -18,7 +18,7 @@ submitElem.addEventListener('click', e =>  {
 
   let data = new FormData(formElem);
   data.append(JSON.stringify(drawing));
-
+  
   drawing.clear(canvas);
 
   const parameters = {
