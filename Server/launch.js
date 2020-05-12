@@ -90,14 +90,12 @@ server.addResource(new ServerResource("POST", "/submitkickstart", async (req, re
     Database.createUser("kickstart");
   }
   const requestBody = JSON.parse(await readRequestBody(req));
-  console.log(requestBody);
+  console.log(`recieved drawing with xarray.length: ${requestBody.xArray.length} yArray.length: ${requestBody.yArray.length} velocities.length: ${requestBody.velocities.length} gradients.length: ${requestBody.gradients.length}`);
   DataHandler.addEntry(requestBody, "kickstart");
 
   res.writeHead(200);
   res.end();
 }));
-
-
 
 
 //testServer(); // Enable this for testing! :)
