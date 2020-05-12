@@ -117,6 +117,34 @@ exports.Matrix = class {
     return obj;
   }
 
+  fill(num){
+    for(let i = 0; i < this.rows; i++) {
+      for(let j = 0; j < this.cols; j++) {
+        this.setElement(i+1,j+1, num);
+      }
+    }
+    return this;
+  }
+
+  addMatrix(matrixB){
+    const newMatrix = new exports.Matrix(this.rows + matrixB.rows, this.cols)
+
+    /* Copy this into new matrix */
+    for(let i = 0; i < this.rows; i++) {
+      for(let j = 0; j < this.cols; j++) {
+        newMatrix.setElement(i+1, j+1, this.getElement(i+1,j+1));
+      }
+    }
+    /* Copy matrixB into new matrix */
+    for(let i = 0; i < matrixB.rows; i++) {
+      for(let j = 0; j < matrixB.cols; j++) {
+        newMatrix.setElement(i+1+this.rows, j+1+this.cols, matrixB.getElement(i+1, j+1));
+      }
+    }
+
+    return newMatrix;
+  }
+
   /*Normalizes matB through matA's mean and std. deviation values*/
   static normalizeThrough(matA, matB){
     const obj = neuralnet.normalizeMatrixWithUext(matB, matA.getExt());
