@@ -21,7 +21,7 @@ submitElem.addEventListener('click', e =>  {
   }
   let drawingData = JSON.stringify({username: userElem.value, drawing: drawing});
 
-  const url = "/submit/";
+  const url = "/submit";
   const parameters = {
     method: "POST",
     body: drawingData
