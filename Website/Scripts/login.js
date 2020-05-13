@@ -18,31 +18,31 @@ submitElem.addEventListener('click', e =>  {
     alert("Too few datapoints! Draw more!");
   } else {  
     exportStuff(drawing);
-  }
-  let drawingData = JSON.stringify({username: userElem.value, drawing: drawing});
+    let drawingData = JSON.stringify({username: userElem.value, drawing: drawing});
 
-  const url = "/submit";
-  const parameters = {
-    method: "POST",
-    body: drawingData
-  };
+    const url = "/submit";
+    const parameters = {
+      method: "POST",
+      body: drawingData
+    };
 
-  fetch(url, parameters)
-    .then(
-      function(response) {
-        if (response.status > 399) { 
-          console.log('Looks like there was a problem. Status Code: ' + response.status);
-          return;
-        } else if (response.status === 200) {
-          alert("Autenticated!");
+    fetch(url, parameters)
+      .then(
+        function(response) {
+          if (response.status > 399) { 
+            console.log('Looks like there was a problem. Status Code: ' + response.status);
+            return;
+          } else if (response.status === 200) {
+            alert("Autenticated!");
+          }
         }
-      }
-    )
-    .catch(function(err) {
-      console.log('Fetch Error :-S', err);
-    });
+      )
+      .catch(function(err) {
+        console.log('Fetch Error :-S', err);
+      });
 
-  //Clear canvas
-  cleanUp(drawing);
+    //Clear canvas
+    cleanUp(drawing);
+  }
 });
 
