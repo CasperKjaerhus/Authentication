@@ -40,7 +40,10 @@ function averageReduce(array, i, subArraySize) {
 }
 
 
-
+export function cleanUp(drawing) {
+  drawing.startedDrawing = false;
+  drawing.clear(canvas);
+}
 
 
 
