@@ -13,7 +13,7 @@ const server = new Server(8000);
 if(fs.existsSync("./data") === false){
   fs.mkdirSync(`./data`);
 }
-
+/*TODO: Test if Matrix.fill actually works as intended*/
 /*Resource to create an account from the client */
 server.addResource(new ServerResource("POST", "/createaccount/", async (req, res) => {
   if (Database.DoesUserExist("wrongdrawings") === false){
@@ -40,7 +40,7 @@ server.addResource(new ServerResource("POST", "/createaccount/", async (req, res
     learningInput = learningInput.addMatrix(wrongDrawings).normalize();
     learningOutput = learningOutput.addMatrix(wrongDrawingOutput);
 
-    const personalNeuralNetwork = new neuralnet.MLP_Net(learningInput.cols, 16, 1).gaussinit();
+    const personalNeuralNetwork = new neuralnet.MLP_Net(learningInput.cols, 8, 1).gaussinit();
 
     console.log(`Training ${body.username} personal neural network`);
 
@@ -60,11 +60,10 @@ server.addResource(new ServerResource("POST", "/createaccount/", async (req, res
 server.addResource(new ServerResource("POST", "/submit", async (req,res) => {
   const requestBody = JSON.parse(await readRequestBody(req));
 
-  if(Database.DoesUserExist(requestBody.username) === true){
+  if (Database.DoesUserExist(requestBody.username) === true) {
     const personalNeuralNetwork = neuralnet.loadMLPNet(`./data/${requestBody.username}/`);
 
     let input = new neuralnet.Matrix(1, 400);
-
     /*Input drawing data into matrix*/
     let j = 1;
     for(let x of requestBody.drawing.xArray){
@@ -86,12 +85,11 @@ server.addResource(new ServerResource("POST", "/submit", async (req,res) => {
       input.setElement(1, j, gradient);
       j += 4;
     }
-    const wrongDrawings = neuralnet.loadMatrix("./data/wrongdrawings/NNData");
 
+    const wrongDrawings = neuralnet.loadMatrix("./data/wrongdrawings/NNData");
     input = input.normalizeThrough(wrongDrawings);
 
     const output = personalNeuralNetwork.decide(input);
-
     input.print();
     output.print();
 
@@ -138,35 +136,6 @@ server.addResource(ServerResource.Servable("../Website/kickstart.html", "/kickst
 
 server.start();
 
-server.addResource(new ServerResource("GET", "/startnn", async (req, res) => {
-  const inLearningMat = neuralnet.loadMatrix("./data/Test/inLearning.txt");
-  const outLearningMat = neuralnet.loadMatrix("./data/Test/outLearning.txt");
-
-  const inLearningMatNorm = inLearningMat.normalize();
-  const inTest = neuralnet.loadMatrix("./data/Test/inTst.txt").normalizeThrough(inLearningMat);
-
-  const outTest = neuralnet.loadMatrix("./data/Test/outTst.txt");
-
-  const neuralnetwork = new neuralnet.MLP_Net(inLearningMat.cols, 6, outLearningMat.cols, 0.0, 0.4).gaussinit();
-
-  console.log("Training...");
-  await neuralnetwork.train(10000, inLearningMatNorm, outLearningMat, 0.02);
-  console.log("finished training!");
-  let numberOfErrors = 0;
-
-  for(let i = 1; i <= inTest.rows; i++){
-
-    const valueMat = neuralnetwork.decide(inTest.getRow(i));
-
-    if(neuralnet.Matrix.compare(valueMat, outTest.getRow(i), 0.2) === false){
-      numberOfErrors++;
-    }
-  }
-
-  res.writeHead(200);
-  res.write("Number of errors: " + numberOfErrors);
-  res.end();
-}));
 /*Neuralnet api testing*/
 server.addResource(new ServerResource("POST", "/submitkickstart", async (req, res) => {
   if(Database.DoesUserExist("kickstart") === false){
