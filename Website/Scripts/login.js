@@ -1,6 +1,6 @@
 'use strict';
 
-import {default as Canvas, Drawing} from './canvas_module.js';
+import {default as Canvas} from './canvas_module.js';
 import {default as exportStuff, cleanUp as cleanUp} from './utility.js';
 
 const userElem        = document.getElementById('username');
