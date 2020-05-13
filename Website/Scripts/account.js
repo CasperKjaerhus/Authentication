@@ -29,7 +29,7 @@ buttonNext.addEventListener('click', e => {
     exportStuff(drawing);
     data.push(JSON.parse(JSON.stringify(drawing)));
     counterElem.innerHTML=`${counter = counter < done ? counter+1 : done}/${done}`;
-    cleanUp(drawing);
+    cleanUp(drawing, canvas);
   }
 
   if (counter === done) {

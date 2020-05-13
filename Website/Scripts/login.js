@@ -42,7 +42,7 @@ submitElem.addEventListener('click', e =>  {
       });
 
     //Clear canvas
-    cleanUp(drawing);
+    cleanUp(drawing, canvas);
   }
 });
 
