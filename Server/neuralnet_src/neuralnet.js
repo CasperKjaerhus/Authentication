@@ -58,7 +58,7 @@ exports.Matrix = class {
   }
   getExt(){
     if(this.#extMat === undefined){
-      //this.normalize(); // run normalize in order to get extMat
+      this.normalize(); // run normalize in order to get extMat
     }
     return this.#extMat;
   }
@@ -92,7 +92,7 @@ exports.Matrix = class {
     this.values[this.rows * (col-1) + (row-1)] = val;
   }
 
-  /*Normalizes a matrix through this matrix' mean and std. deviation values*/
+  /*Normalizes a matrix through another matrix' mean and std. deviation values*/
   normalizeThrough(matB){
     const obj = neuralnet.normalizeMatrixWithUext(this, matB.getExt());
     return new exports.Matrix(obj.rows, obj.cols, obj.values, obj.rowoffset);
