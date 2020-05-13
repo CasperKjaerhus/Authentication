@@ -1,6 +1,6 @@
 'use strict';
 
-import {smallestX as minX, smallestY as minY} from './canvas_module.js';
+import {Canvas as Canvas, Drawing as Drawing, smallestX as minX, smallestY as minY} from './canvas_module.js';
 
 // Shrinks the object for export to server to desired inputsize
 export default function exportStuff(drawing){
