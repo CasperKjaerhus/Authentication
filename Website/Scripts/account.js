@@ -1,6 +1,6 @@
 'use strict';
 import {default as Canvas, Drawing} from './canvas_module.js';
-import {default as exportStuff} from './utility.js';
+import {default as exportStuff, cleanUp as cleanUp} from './utility.js';
 
 const validate        = document.getElementById('validate');
 const buttonNext      = document.getElementById('nextDrawing');
@@ -93,8 +93,3 @@ validate.addEventListener('change', e => {
 });
 
 
-function cleanUp(drawing) {
-    //Clear canvas and enable next drawing
-    drawing.startedDrawing = false;
-    drawing.clear(canvas);
-}
