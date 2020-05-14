@@ -43,30 +43,24 @@ exports.DataHandler = class {
         console.log(err)
       }
     });
-    
-    
-    const prom = new Promise((resolve, reject) => {
+
+    const prom = new Promise(async (resolve, reject) => {
 
       const readlineInterface = readline.createInterface({
         input: fs.createReadStream(`./data/${username}/drawings`)
       });
-      /*Line event fires when a line is read from the file, and is used to copy to another file*/
-      readlineInterface.on("line", (input) => {
-        fs.appendFile(`./data/${username}/NNData`, input+"\n", (err) => {
-          if(err){
-            console.log(err);
-          }
+
+      for await (const line of readlineInterface) {
+        await fs.promises.appendFile(`./data/${username}/NNData`, line+"\n");
+      }
+
+      fs.stat(`./data/${username}/NNData`, (err, stats) => {
+        fs.truncate(`./data/${username}/NNData`, stats.size - 1, (err) => {
+          resolve();
         });
       });
-      
-      /*Close event fires upon end of file and is used to delete the last new line and resolves the promise*/
-      readlineInterface.on("close", () => {
-        fs.stat(`./data/${username}/NNData`, (err, stats) => {
-          fs.truncate(`./data/${username}/NNData`, stats.size - 1, (err) => {});
-        })
-        resolve();
-      });
-    })
+
+    });
     await prom.then(() => console.log(`Done writing from [./data/${username}/drawings] to [./data/${username}/NNData]`));
   }
 }
