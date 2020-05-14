@@ -1,12 +1,9 @@
-
-
 //Compare function. Asserting if failed or passed.
 function assert(testVal, expectedVal, iteration, failures){
   const verdict = testVal === expectedVal ? true : false;
   if (verdict === true) {
     return failures;
   } else {
-    //console.log(testVal, expectedVal, iteration);
     return ++failures;
   }
 }
@@ -31,10 +28,6 @@ function averageReduce(array, i, subArraySize) {
 
   array.splice(i, subArraySize, averageCalc);
 }
-
-
-// Vores funktion som skal testes
-
 
 //Test function for validating that averageReduce() produces an array of an expected length
 //Confirmed working last on 05/05-2020 at 14:20 by ANeshe (OBS!!! '+1' in line 77 is IMPORTANT due to .slice()).
@@ -136,7 +129,6 @@ function expectedArrayReduce(inputArray, subArraySize, i, j) {
   avg = sum/subArray.length;
   return avg;
 }
-
 
 
 

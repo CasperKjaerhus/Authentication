@@ -3,7 +3,7 @@
 import {Drawing as Drawing, smallestX as minX, smallestY as minY} from './canvas_module.js';
 
 // Shrinks the object for export to server to desired inputsize
-export default function exportStuff(drawing){
+export default function exportStuff(drawing) {
 
   //Init number of groups and subArraySize for each group
   const groups = 100;
@@ -11,7 +11,7 @@ export default function exportStuff(drawing){
   const ceilArraySize = Math.ceil(drawing.xArray.length/groups);
   const floorArraySize = Math.floor(drawing.xArray.length/groups);
 
-  //Correction of drawing position
+  //Correction of drawing to starting position
   drawing.xArray.forEach(x => x - minX);
   drawing.yArray.forEach(y => y - minY);
 
@@ -29,7 +29,6 @@ export default function exportStuff(drawing){
       }
     }
   }
-  console.log(`done:  arrayLength = ${drawing.xArray.length}\n ${drawing.correctDrawing}`)
 }
 
 function averageReduce(array, i, subArraySize) {
@@ -38,13 +37,6 @@ function averageReduce(array, i, subArraySize) {
 
   array.splice(i, subArraySize, averageCalc);
 }
-
-
-export function cleanUp(drawing, canvas) {
-  drawing.startedDrawing = false;
-  drawing.clear(canvas);
-}
-
 
 
 

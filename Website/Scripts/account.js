@@ -1,14 +1,14 @@
 'use strict';
 import {default as Canvas} from './canvas_module.js';
-import {default as exportStuff, cleanUp as cleanUp} from './utility.js';
+import {default as exportStuff} from './utility.js';
 
+//Get the DOM objects by DOM selectors on the html-element id
 const validate        = document.getElementById('validate');
 const buttonNext      = document.getElementById('nextDrawing');
 const counterElem     = document.getElementById('counter');
 const canvasElem      = document.getElementById('drawCanvas');
 const clearElem       = document.getElementById('buttonClear');
 const canvas          = new Canvas(canvasElem, clearElem);
-
 
 let data = [];
 let counter = 0;
@@ -17,6 +17,7 @@ let done = 2*numCorrect;
 counterElem.innerHTML=`${counter}/${done}`;
 
 //ToDo: Handle succes and fail cases for response
+// Ask Cleth about L21 'e'
 buttonNext.addEventListener('click', e => {
   let drawing = canvas.currDrawing;
 
@@ -29,7 +30,7 @@ buttonNext.addEventListener('click', e => {
     exportStuff(drawing);
     data.push(JSON.parse(JSON.stringify(drawing)));
     counterElem.innerHTML=`${counter = counter < done ? counter+1 : done}/${done}`;
-    cleanUp(drawing, canvas);
+    drawing.clear(canvas);
   }
 
   if (counter === done) {
@@ -42,7 +43,7 @@ buttonNext.addEventListener('click', e => {
     const parameters = {
       method: "POST",
       body: drawingData
-    };
+    }
 
 
     fetch(url, parameters)
@@ -57,21 +58,20 @@ buttonNext.addEventListener('click', e => {
         }
       )
       .catch(function(err) {
-        console.log('Fetch Error :-S', err);
-      });
+        console.log('Fetch Error :', err);
+      })
   }
-});
+})
 
-/* TODO: 
-   Client-side: Handle response
-*/
+// TODO: Client-side: Handle response
+// Ask Cleth about L68 'e'
 validate.addEventListener('change', e => {
   const url = "/checkusername/";
 
   const parameters = {
     method: "POST",
     body: validate.value
-  };
+  }
 
   fetch(url, parameters)
     .then(
@@ -89,7 +89,7 @@ validate.addEventListener('change', e => {
     )
     .catch(function(err) {
       console.log('Fetch Error: ', err);
-    });
-});
+    })
+})
 
 

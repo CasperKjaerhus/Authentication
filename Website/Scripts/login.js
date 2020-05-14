@@ -1,7 +1,7 @@
 'use strict';
 
 import {default as Canvas} from './canvas_module.js';
-import {default as exportStuff, cleanUp as cleanUp} from './utility.js';
+import {default as exportStuff} from './utility.js';
 
 const userElem        = document.getElementById('username');
 const canvasElem      = document.getElementById('drawCanvas');
@@ -9,7 +9,7 @@ const clearElem       = document.getElementById('buttonClear');
 const submitElem      = document.getElementById('buttonSubmit');
 const canvas          = new Canvas(canvasElem, clearElem);
 
-/* Button for submitting draw data */
+//Button for submitting draw data
 submitElem.addEventListener('click', e =>  {
   let drawing = canvas.currDrawing;
 
@@ -24,7 +24,7 @@ submitElem.addEventListener('click', e =>  {
     const parameters = {
       method: "POST",
       body: drawingData
-    };
+    }
 
     fetch(url, parameters)
       .then(
@@ -39,10 +39,10 @@ submitElem.addEventListener('click', e =>  {
       )
       .catch(function(err) {
         console.log('Fetch Error :-S', err);
-      });
+      })
 
     //Clear canvas
-    cleanUp(drawing, canvas);
+    drawing.clear(canvas);
   }
-});
+})
 
