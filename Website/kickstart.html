@@ -21,8 +21,8 @@
   </body>
   <script type="module">
 
-    import {default as Canvas, Drawing} from './Scripts/canvas_module.js';
-    import {default as exportStuff} from './Scripts/utility.js';
+    import {default as Canvas} from './Scripts/canvas_module.js';
+    import {default as exportData} from './Scripts/utility.js';
     
     const canvasElem      = document.getElementById('drawCanvas');
     const clearElem       = document.getElementById('buttonClear');
@@ -38,7 +38,7 @@
         return;
       }
 
-      exportStuff(drawing);
+      exportData(drawing);
       const url = "/submitkickstart";
       const parameters = {
         method: "POST",

@@ -1,9 +1,9 @@
 'use strict';
 
-import {Drawing as Drawing, smallestX as minX, smallestY as minY} from './canvas_module.js';
+import {smallestX as minX, smallestY as minY} from './canvas_module.js';
 
 // Shrinks the object for export to server to desired inputsize
-export default function exportStuff(drawing) {
+export default function exportData(drawing) {
 
   //Init number of groups and subArraySize for each group
   const groups = 100;
@@ -37,65 +37,3 @@ function averageReduce(array, i, subArraySize) {
 
   array.splice(i, subArraySize, averageCalc);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-// Slettes når det er vettet og checket :D 
-
-
-
-/* Det som blev sat ind
-
-let subArraySize = Math.ceil(copyTestArray.length/groups);
-let subArraySize2 = Math.floor(copyTestArray.length/groups);
-let ceilGroups = testArray.length % groups;
-
-for (let i = 0; i < groups; i++) {
-
-  if (i < ceilGroups) {
-    averageReduce(testArray, i, subArraySize);
-  } else {
-    averageReduce(testArray, i, subArraySize2);
-  }
-}
-*/
-
-
-/* Gamle 
-
-for (let property in drawing) { 
-
-  if (property !== 'startedDrawing') {
-
-    for (let i = 0; i < groups; i++) {
-    
-      // If should catch the event in which: a) we are not yet done, b) the current index/group (i) + the size of this group should not reduce the array below a length of 100
-      if (((i + subArraySize) <= drawing[property].length) && ((drawing[property].length - subArraySize) > groups)) {
-                  
-        averageReduce(drawing[property], i, subArraySize);
-      // Else handle event where either of the above if-conditions are false.
-      } else {
-
-        //Set size for remaining groups, elements and size of each group
-        const remaindingElem = drawing[property].length - i;
-        const remaindingGroups = groups-i; 
-        const size  = Math.ceil(remaindingElem/remaindingGroups);
-
-        averageReduce(drawing[property], i, size);
-      }
-      
-    }
-  }
-}
-
-*/
-

@@ -86,6 +86,7 @@ export default class Canvas {
 //Eventlistener for mousedown event
 function mousedown(rect, canvas) {
   return e => {
+    e.preventDefault();
     if (e.button === 0) {  
 
       x = e.clientX - rect.left;
@@ -110,6 +111,7 @@ function mousedown(rect, canvas) {
 //Eventlistener for mousedown event
 function mousemove(rect, canvas) {
   return e => {
+    e.preventDefault();
     if (isDrawing === true && e.button === 0) {
       canvas.drawLine(x, y, e.clientX - rect.left, e.clientY - rect.top);
       x = e.clientX - rect.left;
@@ -118,8 +120,8 @@ function mousemove(rect, canvas) {
       prevTime = currTime;
       currTime = Date.now() - timerStart;
 
-      grad = canvas.currDrawing.gradient(canvas.currDrawing.xArray.length-1, canvas.currDrawing.yArray.length-1, x, y);
-      velocity = canvas.currDrawing.velocity(currTime, prevTime, canvas.currDrawing.xArray.length-1, canvas.currDrawing.yArray.length-1, x, y);
+      grad = canvas.currDrawing.gradient(canvas.currDrawing.xArray[canvas.currDrawing.xArray.length-1], canvas.currDrawing.yArray[canvas.currDrawing.yArray.length-1], x, y);
+      velocity = canvas.currDrawing.velocity(currTime, prevTime, canvas.currDrawing.xArray[canvas.currDrawing.xArray.length-1], canvas.currDrawing.yArray[canvas.currDrawing.yArray.length-1], x, y);
       
       //Update the smallestX and Y accordingly after every mousemove-event
       smallestX = smallestX > x ? x : smallestX;
@@ -149,5 +151,5 @@ function clearEventListener(canvas) {
 
 //Calculate the euclidean distance between 2 datapoints
 function euclideanDist(x1, x2, y1, y2){
-  return Math.sqrt((x1**2+x2**2+y1**2+y2**2));
+  return Math.sqrt(Math.pow((x1-x2), 2)+Math.pow((y1-y2), 2))
 }

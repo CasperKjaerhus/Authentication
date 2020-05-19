@@ -1,6 +1,6 @@
 'use strict';
 import {default as Canvas} from './canvas_module.js';
-import {default as exportStuff} from './utility.js';
+import {default as exportData} from './utility.js';
 
 //Get the DOM objects by DOM selectors on the html-element id
 const validate        = document.getElementById('validate');
@@ -27,7 +27,7 @@ buttonNext.addEventListener('click', e => {
     alert("Too few datapoints! Draw more!");
   } else if (counter < done) {  
     drawing.correctDrawing = counter < numCorrect ? true : false;
-    exportStuff(drawing);
+    exportData(drawing);
     data.push(JSON.parse(JSON.stringify(drawing)));
     counterElem.innerHTML=`${counter = counter < done ? counter+1 : done}/${done}`;
     drawing.clear(canvas);

@@ -1,7 +1,7 @@
 'use strict';
 
 import {default as Canvas} from './canvas_module.js';
-import {default as exportStuff} from './utility.js';
+import {default as exportData} from './utility.js';
 
 const userElem        = document.getElementById('username');
 const canvasElem      = document.getElementById('drawCanvas');
@@ -17,7 +17,7 @@ submitElem.addEventListener('click', e =>  {
   if (drawing === null || drawing.xArray.length < 100) {
     alert("Too few datapoints! Draw more!");
   } else {  
-    exportStuff(drawing);
+    exportData(drawing);
     let drawingData = JSON.stringify({username: userElem.value, drawing: drawing});
 
     const url = "/submit";
