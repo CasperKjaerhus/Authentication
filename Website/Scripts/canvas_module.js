@@ -150,6 +150,6 @@ function clearEventListener(canvas) {
 }
 
 //Calculate the euclidean distance between 2 datapoints
-function euclideanDist(x1, x2, y1, y2){
+export function euclideanDist(x1, x2, y1, y2){
   return Math.sqrt(Math.pow((x1-x2), 2)+Math.pow((y1-y2), 2))
 }
