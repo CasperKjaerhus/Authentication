@@ -6,10 +6,10 @@ import {smallestX as minX, smallestY as minY} from './canvas_module.js';
 export default function exportData(drawing) {
 
   //Init number of groups and subArraySize for each group
-  const groups = 100;
-  const ceilGroups = drawing.xArray.length % groups;
-  const ceilArraySize = Math.ceil(drawing.xArray.length/groups);
-  const floorArraySize = Math.floor(drawing.xArray.length/groups);
+  const inputSizeNN = 100;
+  const ceilGroups = drawing.xArray.length % inputSizeNN;
+  const ceilArraySize = Math.ceil(drawing.xArray.length/inputSizeNN);
+  const floorArraySize = Math.floor(drawing.xArray.length/inputSizeNN);
 
   //Correction of drawing to starting position
   drawing.xArray.forEach(x => x - minX);
@@ -19,7 +19,7 @@ export default function exportData(drawing) {
 
     if (property !== 'startedDrawing' && property !== 'correctDrawing') {
 
-      for (let i = 0; i < groups; i++) {
+      for (let i = 0; i < inputSizeNN; i++) {
         
         if (i < ceilGroups) {
           averageReduce(drawing[property], i, ceilArraySize);
