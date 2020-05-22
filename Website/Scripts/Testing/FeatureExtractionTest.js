@@ -1,6 +1,6 @@
 'use strict';
 //Testrunner call
-runFeatureExtractionTest(10000);
+runFeatureExtractionTest(100000);
 
 //Testrunner function
 function runFeatureExtractionTest(iterations) {
@@ -54,35 +54,39 @@ function featureExtractionTest(drawing, rawData) {
   let totalFails = 0;
 
   //Init output and expected arrays for each sub-test
-  let outputArrayEuclid =  [];
-  let outputArrayVelocity =  [];
-  let outputArrayGradient = [];
-  let expectedArrayEuclid = [];
-  let expectedArrayVelocity =  [];
-  let expectedArrayGradient = [];
+  let outputEuclid =  [];
+  let outputVelocity =  [];
+  let outputGradient = [];
+  let expectedEuclid = [];
+  let expectedVelocity =  [];
+  let expectedGradient = [];
 
   //Init timevariables for function calls
   const currTime = 1;
-  const prevTime = 0;
+  const prevTime = 0.0001;
 
   for (let property in drawing) { 
     for (let i = 0; i < drawing.xArray.length-1; i++) {
       if (property == 'velocities') {
-        let randCurrTime = Math.random()-0.0001;
-        
-        //EuclideanDistance unit test (time is constant, 1)
-        outputArrayEuclid[i]   = velocity(currTime-0.0001, prevTime, drawing.xArray[i], drawing.xArray[i+1], drawing.yArray[i], drawing.yArray[i+1]);
-        expectedArrayEuclid[i] = euclideanDist(rawData.xArray[i], rawData.xArray[i+1], rawData.yArray[i], rawData.yArray[i+1]);
-        EuclidFails = assert(outputArrayEuclid[i], expectedArrayEuclid[i], EuclidFails);
-        //Velocity unit test (distance is constant, 5)
-        outputArrayVelocity[i]   = velocity(randCurrTime-0.0001, prevTime, 4, 1, 6, 2);
-        expectedArrayVelocity[i] = 5/randCurrTime;
-        VelocityFails = assert(outputArrayVelocity[i], expectedArrayVelocity[i], VelocityFails);
+        const randTime = Math.random();
+        const x1 = drawing.xArray[i];
+        const x2 = drawing.xArray[i+1];
+        const y1 = drawing.yArray[i];
+        const y2 = drawing.yArray[i+1];
+
+        //EuclideanDistance unit test (time is constant, time = 1)
+        EuclidUnitTest(outputEuclid, expectedEuclid, currTime, prevTime, x1, x2, y1, y2, i);
+        EuclidFails = assert(outputEuclid[i], expectedEuclid[i], EuclidFails);
+
+        //Velocity unit test (distance is constant, distance = 5)
+        VelocityUnitTest(outputVelocity, expectedVelocity, randTime, prevTime, 4, 1, 6, 2, i);        
+        VelocityFails = assert(outputVelocity[i], expectedVelocity[i], VelocityFails);
+
       } else if (property == 'gradients') {
           // Gradient unit test (lidt iffy, identiske arrays, vi behandler ens, der så ender med at være ens? xd?)
-          outputArrayGradient[i]   = gradient(drawing.xArray[i], drawing.yArray[i], drawing.xArray[i+1], drawing.yArray[i+1]);
-          expectedArrayGradient[i] = gradient(rawData.xArray[i], rawData.yArray[i], rawData.xArray[i+1], rawData.yArray[i+1]);
-          GradientFails = assert(outputArrayGradient[i], expectedArrayGradient[i], GradientFails);
+          outputGradient[i]   = gradient(drawing.xArray[i], drawing.yArray[i], drawing.xArray[i+1], drawing.yArray[i+1]);
+          expectedGradient[i] = gradient(rawData.xArray[i], rawData.yArray[i], rawData.xArray[i+1], rawData.yArray[i+1]);
+          GradientFails = assert(outputGradient[i], expectedGradient[i], GradientFails);
       }
     }
   }
@@ -94,6 +98,17 @@ function featureExtractionTest(drawing, rawData) {
   console.log(outputArrayVelocity[outputArrayVelocity.length-1], expectedArrayVelocity[expectedArrayVelocity.length-1]);
 */
   return totalFails;
+}
+
+function EuclidUnitTest(outputEuclid, expectedEuclid, currTime, prevTime, x1, x2, y1, y2, i) {
+  outputEuclid[i]   = velocity(currTime, prevTime, x1, x2, y1, y2);
+  expectedEuclid[i] = euclideanDist(x1, x2, y1, y2);
+}
+
+
+function VelocityUnitTest(outputVelocity, expectedVelocity, currTime, prevTime, x1, x2, y1, y2, i) {
+  outputVelocity[i]   = velocity(currTime, prevTime, x1, x2, y1, y2);
+  expectedVelocity[i] = 5/currTime;
 }
 
 //Compare function. Asserting if failed or passed.
