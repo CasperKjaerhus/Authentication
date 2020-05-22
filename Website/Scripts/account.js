@@ -12,8 +12,8 @@ const canvas          = new Canvas(canvasElem, clearElem);
 
 let data = [];
 let counter = 0;
-let numCorrect = 100;
-let done = numCorrect;
+let numCorrect = 5;	let numCorrect = 100;
+let done = 2*numCorrect;
 counterElem.innerHTML=`${counter}/${done}`;
 
 //ToDo: Handle succes and fail cases for response
