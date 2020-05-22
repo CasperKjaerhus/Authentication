@@ -135,13 +135,13 @@ exports.Matrix = class {
         newMatrix.setElement(i+1, j+1, this.getElement(i+1,j+1));
       }
     }
+
     /* Copy matrixB into new matrix */
     for(let i = 0; i < matrixB.rows; i++) {
       for(let j = 0; j < matrixB.cols; j++) {
-        newMatrix.setElement(i+1+this.rows, j+1+this.cols, matrixB.getElement(i+1, j+1));
+        newMatrix.setElement(i+1+this.rows, j+1, matrixB.getElement(i+1, j+1));
       }
     }
-
     return newMatrix;
   }
 
