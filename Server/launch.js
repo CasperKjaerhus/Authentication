@@ -19,7 +19,9 @@ server.addResource(new ServerResource("POST", "/createaccount/", async (req, res
   if (Database.DoesUserExist("wrongdrawings") === false){
     Database.createUser("wrongdrawings");
   }
+  
   const body = JSON.parse(await readRequestBody(req));
+
   if (Database.DoesUserExist(body.username) === false) {
     res.writeHead(200);
     Database.createUser(body.username);
@@ -33,19 +35,32 @@ server.addResource(new ServerResource("POST", "/createaccount/", async (req, res
 
     const wrongDrawings = neuralnet.loadMatrix("./data/wrongdrawings/NNData");
     const wrongDrawingOutput = new neuralnet.Matrix(wrongDrawings.rows, 1).fill(0);
+  
+    let Input = neuralnet.loadMatrix(`./data/${body.username}/NNData`);
 
-    let learningInput = neuralnet.loadMatrix(`./data/${body.username}/NNData`);
+    let learningInput = Input.getRow(2);
+
+    for (let i = 3; i <= Input.rows; i++) {
+      learningInput = learningInput.addMatrix(Input.getRow(i));
+    }
+
     let learningOutput = new neuralnet.Matrix(learningInput.rows, 1).fill(1);
     
     learningInput = learningInput.addMatrix(wrongDrawings).normalize();
     learningOutput = learningOutput.addMatrix(wrongDrawingOutput);
 
-    const personalNeuralNetwork = new neuralnet.MLP_Net(learningInput.cols, 8, 1).gaussinit();
+    const personalNeuralNetwork = new neuralnet.MLP_Net(learningInput.cols, 10, 1).gaussinit(0.01, 0.4);
 
     console.log(`Training ${body.username} personal neural network`);
 
-    await personalNeuralNetwork.train(1000, learningInput, learningOutput, 0.02);
 
+
+    await personalNeuralNetwork.train(1000, learningInput, learningOutput, 0.05);
+
+    while(personalNeuralNetwork.decide(Input.getRow(1)).getElement(1,1) < 0.9){
+      console.log("Training some more: Test returned: " + personalNeuralNetwork.decide(Input.getRow(1)).getElement(1,1));
+      await personalNeuralNetwork.train(10, learningInput, learningOutput, 0.02);
+    }
     console.log(`finished training ${body.username}'s personal network!`);
 
     personalNeuralNetwork.saveToFile(`./data/${body.username}/`);
@@ -90,6 +105,7 @@ server.addResource(new ServerResource("POST", "/submit", async (req,res) => {
     input = input.normalizeThrough(wrongDrawings);
 
     const output = personalNeuralNetwork.decide(input);
+
     input.print();
     output.print();
 

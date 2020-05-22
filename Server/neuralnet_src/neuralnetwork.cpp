@@ -38,6 +38,8 @@ napi_value init(napi_env env, napi_value exports) {
   napi_value loadMatrixFn, normalizeMatrixfn, normalizeMatrixWithExtfn, 
              gaussinitfn, mlploadfn, mlpsavefn, trainMLPNetfn, decideMLPNetfn;
 
+  srand(time(NULL));
+
   status = napi_create_function(env, NULL, 0, loadMatrix, NULL, &loadMatrixFn);
   if(status != napi_ok) return NULL;
 
