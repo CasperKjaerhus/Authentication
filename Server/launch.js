@@ -53,8 +53,6 @@ server.addResource(new ServerResource("POST", "/createaccount/", async (req, res
 
     console.log(`Training ${body.username} personal neural network`);
 
-
-
     await personalNeuralNetwork.train(1000, learningInput, learningOutput, 0.05);
 
     while(personalNeuralNetwork.decide(Input.getRow(1)).getElement(1,1) < 0.9){

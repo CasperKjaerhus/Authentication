@@ -30,6 +30,7 @@ exports.DataHandler = class {
   static async prepareNNData(username, coloumns){
     let rows;
     
+    console.log(await CountRows(`./data/${username}/drawings`));
     /*receives the amount of rows/lines and uses this alongside the amount of coloums to write the start of the NNData file*/
     await CountRows(`./data/${username}/drawings`).then((val) => rows = val);
     /*Deletes contents of NNData if there is one*/
@@ -82,28 +83,16 @@ function JSONToData(dataObject) {
 
 /*The amount of rows/lines in the document is counted and then the number is returned*/
 async function CountRows(fileLocation) {
-  let returnData = 0; 
-  const prom = new Promise((resolve, reject) => {
-
-    let linenum = 0;
-    const readlineInterface = readline.createInterface({
-      input: fs.createReadStream(fileLocation)
-    });
-
-    readlineInterface.on("line", (input) => {
-      linenum++;
-    });
-    
-    readlineInterface.on("close", () => {
-      resolve(linenum);
-    }); 
+  let linenum = 0; 
+  const readlineInterface = readline.createInterface({
+    input: fs.createReadStream(fileLocation)
   });
 
-  await prom.then((val) => {
-    returnData = val;
-  }).catch((err) => {
-    console.error(err);
-  });
+  for await(const line of readlineInterface){
+    linenum++;
+  }
 
-  return returnData;
+  readlineInterface.close();
+
+  return linenum;
 }
