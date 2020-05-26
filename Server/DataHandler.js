@@ -28,11 +28,9 @@ exports.DataHandler = class {
   }
 
   static async prepareNNData(username, coloumns){
-    let rows;
-    
-    console.log(await CountRows(`./data/${username}/drawings`));
     /*receives the amount of rows/lines and uses this alongside the amount of coloums to write the start of the NNData file*/
-    await CountRows(`./data/${username}/drawings`).then((val) => rows = val);
+    let rows = await CountRows(`./data/${username}/drawings`);
+
     /*Deletes contents of NNData if there is one*/
     if(fs.existsSync(`./data/${username}/NNData`) === true){
       fs.truncateSync(`./data/${username}/NNData`, 0);
