@@ -4,7 +4,6 @@ const DataHandler = require("./DataHandler.js").DataHandler;
 const Database = require("./Database.js").Database;
 const http = require("http");
 const fs = require("fs");
-const {testServer} = require("./Test.js");
 const neuralnet = require("./neuralnet_src");
 
 
@@ -165,9 +164,6 @@ server.addResource(new ServerResource("POST", "/submitkickstart", async (req, re
   res.writeHead(200);
   res.end();
 }));
-
-
-//testServer(); // Enable this for testing! :)
 
 /* Function that resolves to clientrequest body */
 function readRequestBody(req){
