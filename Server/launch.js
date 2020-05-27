@@ -130,7 +130,7 @@ server.addResource(new ServerResource("POST", "/checkusername/", (req, res) => {
     res.writeHead(200);
     if (Database.DoesUserExist(val) === true){
       res.write("taken", () => res.end());
-    }else {
+    } else {
       res.write("not taken", () => res.end());
     }
   });
