@@ -4,7 +4,7 @@ exports.Database = class {
   constructor(){}
 
   static createUser(username){
-    if(!this.DoesUserExist(username)) {
+    if (!this.DoesUserExist(username)) {
       CreateUserPath(username);
       return true;
     } else {
@@ -13,7 +13,7 @@ exports.Database = class {
   }
 
   static DoesUserExist(username){  
-    if(fs.existsSync(`./data/${username}`) === false) {
+    if (fs.existsSync(`./data/${username}`) === false) {
       return false;
     } else {
       return true;
@@ -23,10 +23,10 @@ exports.Database = class {
   static deleteUser(username){
     fs.readdir(`./data/${username}`, (err, files) => {
       let promises = new Array();
-      for(let file of files) {
+      for (let file of files) {
         promises.push(new Promise((resolve, reject) => {
           fs.unlink(`./data/${username}/${file}`, (err) => {
-            if(err){
+            if (err){
               console.log(err);
               reject();
             }
@@ -37,7 +37,7 @@ exports.Database = class {
       }
       Promise.all(promises).then(() => {
         fs.rmdir(`./data/${username}`, (err) => {
-          if(err){
+          if (err){
             console.log(err);
           }
         })
@@ -52,7 +52,7 @@ function CreateUserPath(username){
     fs.mkdirSync(`./data/${username}`);
     fs.writeFileSync(`./data/${username}/drawings`, "");
     fs.writeFileSync(`./data/${username}/NNData`, "");
-  } catch(e){
+  } catch (e){
     console.log(e);
   }
 }

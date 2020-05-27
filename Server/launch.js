@@ -10,7 +10,7 @@ const neuralnet = require("./neuralnet_src");
 
 const server = new Server(8000);
 
-if(fs.existsSync("./data") === false){
+if (fs.existsSync("./data") === false){
   fs.mkdirSync(`./data`);
 }
 /*TODO: Test if Matrix.fill actually works as intended*/
@@ -55,7 +55,7 @@ server.addResource(new ServerResource("POST", "/createaccount/", async (req, res
 
     await personalNeuralNetwork.train(1000, learningInput, learningOutput, 0.05);
 
-    while(personalNeuralNetwork.decide(Input.getRow(1)).getElement(1,1) < 0.9){
+    while (personalNeuralNetwork.decide(Input.getRow(1)).getElement(1,1) < 0.9){
       console.log("Training some more: Test returned: " + personalNeuralNetwork.decide(Input.getRow(1)).getElement(1,1));
       await personalNeuralNetwork.train(10, learningInput, learningOutput, 0.02);
     }
@@ -79,22 +79,22 @@ server.addResource(new ServerResource("POST", "/submit", async (req,res) => {
     let input = new neuralnet.Matrix(1, 400);
     /*Input drawing data into matrix*/
     let j = 1;
-    for(let x of requestBody.drawing.xArray){
+    for (let x of requestBody.drawing.xArray) {
       input.setElement(1, j, x);
       j += 4;
     }
     j = 2;
-    for(let y of requestBody.drawing.yArray){
+    for (let y of requestBody.drawing.yArray) {
       input.setElement(1, j, y);
       j += 4;
     }
     j = 3;
-    for(let velocity of requestBody.drawing.velocities){
+    for (let velocity of requestBody.drawing.velocities) {
       input.setElement(1, j, velocity);
       j += 4;
     }
     j = 4;
-    for(let gradient of requestBody.drawing.gradients){
+    for (let gradient of requestBody.drawing.gradients) {
       input.setElement(1, j, gradient);
       j += 4;
     }
@@ -107,7 +107,7 @@ server.addResource(new ServerResource("POST", "/submit", async (req,res) => {
     input.print();
     output.print();
 
-    if(output.getElement(1,1) > 0.8){
+    if (output.getElement(1,1) > 0.8){
       res.writeHead(200);
       res.write("LOGGED IN");
       res.end();
@@ -129,7 +129,7 @@ server.addResource(new ServerResource("POST", "/submit", async (req,res) => {
 server.addResource(new ServerResource("POST", "/checkusername/", (req, res) => {
   readRequestBody(req).then((val) => {
     res.writeHead(200);
-    if(Database.DoesUserExist(val) === true){
+    if (Database.DoesUserExist(val) === true){
       res.write("taken", () => res.end());
     }else {
       res.write("not taken", () => res.end());
@@ -152,7 +152,7 @@ server.start();
 
 /*Neuralnet api testing*/
 server.addResource(new ServerResource("POST", "/submitkickstart", async (req, res) => {
-  if(Database.DoesUserExist("kickstart") === false){
+  if (Database.DoesUserExist("kickstart") === false){
     Database.createUser("kickstart");
   }
   if (Database.DoesUserExist("wrongdrawings") === false){

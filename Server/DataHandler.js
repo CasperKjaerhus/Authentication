@@ -32,13 +32,13 @@ exports.DataHandler = class {
     let rows = await CountRows(`./data/${username}/drawings`);
 
     /*Deletes contents of NNData if there is one*/
-    if(fs.existsSync(`./data/${username}/NNData`) === true){
+    if (fs.existsSync(`./data/${username}/NNData`) === true){
       fs.truncateSync(`./data/${username}/NNData`, 0);
     }
     
     /*Starts appending*/
     fs.appendFile(`./data/${username}/NNData`, `${rows} ${coloumns}\n`, (err) => {
-      if(err){
+      if (err){
         console.log(err)
       }
     });
@@ -86,7 +86,7 @@ async function CountRows(fileLocation) {
     input: fs.createReadStream(fileLocation)
   });
 
-  for await(const line of readlineInterface){
+  for await (const line of readlineInterface){
     linenum++;
   }
 
