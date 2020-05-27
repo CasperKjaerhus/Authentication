@@ -8,45 +8,58 @@ exports.DataHandler = class {
   static async addEntry(entry, username) {
     let data = `${JSONToData(entry)}\n`;
     let fileLocation = `./data/${username}/drawings`;
-    if(Database.DoesUserExist(username)){
-      fs.appendFile(fileLocation, data, (err) => {
-        if(err){
-          console.log(err);
-        }
-      });
+    if (Database.DoesUserExist(username)) {
+      if (entry.correctDrawing === true) {
+        fs.appendFile(fileLocation, data, (err) => {
+          if (err) {
+            console.log(err);
+          }
+        });
+      } else {
+        fs.appendFile("./data/wrongdrawings/drawings", data, (err) => {
+          if (err) {
+            console.log(err);
+          }
+        });
+      }
     } else {
       console.log(`Error: ${username} does not exist!`);
     }
-
   }
 
   static async prepareNNData(username, coloumns){
-    let rows;
-    
     /*receives the amount of rows/lines and uses this alongside the amount of coloums to write the start of the NNData file*/
-    await CountRows(`./data/${username}/drawings`).then((val) => rows = val);
+    let rows = await CountRows(`./data/${username}/drawings`);
 
-    fs.appendFile(`./data/${username}/NNData`, `${rows} ${coloumns}\n`, (err) => console.log(err));
+    /*Deletes contents of NNData if there is one*/
+    if(fs.existsSync(`./data/${username}/NNData`) === true){
+      fs.truncateSync(`./data/${username}/NNData`, 0);
+    }
     
-    
-    const prom = new Promise((resolve, reject) => {
+    /*Starts appending*/
+    fs.appendFile(`./data/${username}/NNData`, `${rows} ${coloumns}\n`, (err) => {
+      if(err){
+        console.log(err)
+      }
+    });
+
+    const prom = new Promise(async (resolve, reject) => {
 
       const readlineInterface = readline.createInterface({
         input: fs.createReadStream(`./data/${username}/drawings`)
       });
-      /*Line event fires when a line is read from the file, and is used to copy to another file*/
-      readlineInterface.on("line", (input) => {
-        fs.appendFile(`./data/${username}/NNData`, input+"\n", (err) => console.log(err))
+
+      for await (const line of readlineInterface) {
+        await fs.promises.appendFile(`./data/${username}/NNData`, line+"\n");
+      }
+
+      fs.stat(`./data/${username}/NNData`, (err, stats) => {
+        fs.truncate(`./data/${username}/NNData`, stats.size - 1, (err) => {
+          resolve();
+        });
       });
-      
-      /*Close event fires upon end of file and is used to delete the last new line and resolves the promise*/
-      readlineInterface.on("close", () => {
-        fs.stat(`./data/${username}/NNData`, (err, stats) => {
-          fs.truncate(`./data/${username}/NNData`, stats.size - 1, (err) => {});
-        })
-        resolve();
-      });
-    })
+
+    });
     await prom.then(() => console.log(`Done writing from [./data/${username}/drawings] to [./data/${username}/NNData]`));
   }
 }
@@ -68,29 +81,16 @@ function JSONToData(dataObject) {
 
 /*The amount of rows/lines in the document is counted and then the number is returned*/
 async function CountRows(fileLocation) {
-  let returnData = 0; 
-  const prom = new Promise((resolve, reject) => {
-
-    let linenum = 0;
-    const readlineInterface = readline.createInterface({
-      input: fs.createReadStream(fileLocation)
-    });
-
-    readlineInterface.on("line", (input) => {
-      console.log(linenum);
-      linenum++;
-    });
-    
-    readlineInterface.on("close", () => {
-      resolve(linenum);
-    }); 
+  let linenum = 0; 
+  const readlineInterface = readline.createInterface({
+    input: fs.createReadStream(fileLocation)
   });
 
-  await prom.then((val) => {
-    returnData = val;
-  }).catch((err) => {
-    console.error(err);
-  });
+  for await(const line of readlineInterface){
+    linenum++;
+  }
 
-  return returnData;
+  readlineInterface.close();
+
+  return linenum;
 }

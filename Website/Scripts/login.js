@@ -1,41 +1,48 @@
 'use strict';
 
-import Canvas from './canvas_module.js';
+import {default as Canvas} from './canvas_module.js';
+import {default as exportData} from './utility.js';
 
-const formElem        = document.getElementById('loginForm');
+const userElem        = document.getElementById('username');
 const canvasElem      = document.getElementById('drawCanvas');
 const clearElem       = document.getElementById('buttonClear');
 const submitElem      = document.getElementById('buttonSubmit');
 const canvas          = new Canvas(canvasElem, clearElem);
 
-let drawing = canvas.currDrawing;
-
-/* Button for submitting draw data */
+//Button for submitting draw data
 submitElem.addEventListener('click', e =>  {
-  drawing.exportStuff();
+  let drawing = canvas.currDrawing;
 
-  const url = "/submit/";
+  //Final packing of drawing data into json object
+  if (drawing === null || drawing.xArray.length < 100) {
+    alert("Too few datapoints! Draw more!");
+  } else {  
+    exportData(drawing);
+    let drawingData = JSON.stringify({username: userElem.value, drawing: drawing});
 
-  let data = new FormData(formElem);
-  data.append(JSON.stringify(drawing));
-  
-  drawing.clear(canvas);
+    const url = "/submit";
+    const parameters = {
+      method: "POST",
+      body: drawingData
+    }
 
-  const parameters = {
-    method: "POST",
-    body: data
-  };
-
-  fetch(url, parameters)
-    .then(
-      function(response) {
-        if (response.status > 399) { 
-          console.log('Looks like there was a problem. Status Code: ' + response.status);
-          return;
+    fetch(url, parameters)
+      .then(
+        function(response) {
+          if (response.status > 399) { 
+            console.log('Looks like there was a problem. Status Code: ' + response.status);
+            return;
+          } else if (response.status === 200) {
+            alert("Autenticated!");
+          }
         }
-      }
-    )
-    .catch(function(err) {
-      console.log('Fetch Error :-S', err);
-    });
-});
+      )
+      .catch(function(err) {
+        console.log('Fetch Error :-S', err);
+      })
+
+    //Clear canvas
+    drawing.clear(canvas);
+  }
+})
+

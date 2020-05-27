@@ -58,7 +58,7 @@ exports.Matrix = class {
   }
   getExt(){
     if(this.#extMat === undefined){
-      //this.normalize(); // run normalize in order to get extMat
+      this.normalize(); // run normalize in order to get extMat
     }
     return this.#extMat;
   }
@@ -92,7 +92,7 @@ exports.Matrix = class {
     this.values[this.rows * (col-1) + (row-1)] = val;
   }
 
-  /*Normalizes a matrix through this matrix' mean and std. deviation values*/
+  /*Normalizes a matrix through another matrix' mean and std. deviation values*/
   normalizeThrough(matB){
     const obj = neuralnet.normalizeMatrixWithUext(this, matB.getExt());
     return new exports.Matrix(obj.rows, obj.cols, obj.values, obj.rowoffset);
@@ -115,6 +115,34 @@ exports.Matrix = class {
     }
 
     return obj;
+  }
+
+  fill(num){
+    for(let i = 0; i < this.rows; i++) {
+      for(let j = 0; j < this.cols; j++) {
+        this.setElement(i+1,j+1, num);
+      }
+    }
+    return this;
+  }
+
+  addMatrix(matrixB){
+    const newMatrix = new exports.Matrix(this.rows + matrixB.rows, this.cols)
+
+    /* Copy this into new matrix */
+    for(let i = 0; i < this.rows; i++) {
+      for(let j = 0; j < this.cols; j++) {
+        newMatrix.setElement(i+1, j+1, this.getElement(i+1,j+1));
+      }
+    }
+
+    /* Copy matrixB into new matrix */
+    for(let i = 0; i < matrixB.rows; i++) {
+      for(let j = 0; j < matrixB.cols; j++) {
+        newMatrix.setElement(i+1+this.rows, j+1, matrixB.getElement(i+1, j+1));
+      }
+    }
+    return newMatrix;
   }
 
   /*Normalizes matB through matA's mean and std. deviation values*/
