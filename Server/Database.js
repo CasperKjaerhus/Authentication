@@ -19,31 +19,6 @@ exports.Database = class {
       return true;
     }
   }
-
-  static deleteUser(username){
-    fs.readdir(`./data/${username}`, (err, files) => {
-      let promises = new Array();
-      for (let file of files) {
-        promises.push(new Promise((resolve, reject) => {
-          fs.unlink(`./data/${username}/${file}`, (err) => {
-            if (err){
-              console.log(err);
-              reject();
-            }
-            console.log(`Deleted: ./data/${username}/${file}`);
-            resolve();
-          });
-        }));
-      }
-      Promise.all(promises).then(() => {
-        fs.rmdir(`./data/${username}`, (err) => {
-          if (err){
-            console.log(err);
-          }
-        })
-      })
-    });
-  }
 }
 
 
